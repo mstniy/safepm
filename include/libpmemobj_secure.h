@@ -1,0 +1,38 @@
+#ifndef LIBPMEMOBJ_SECURE_H
+#define LIBPMEMOBJ_SECURE_H
+
+#include <libpmemobj.h>
+
+namespace spmo {
+
+	namespace detail {
+		struct shadowmem {}; // A dummy type, whose type number is used for the shadow memory.
+
+		struct root {
+			TOID(shadowmem) shadow_mem;
+			PMEMoid real_root;
+		};
+
+		POBJ_LAYOUT_BEGIN(libpmemobj_secure); // The exact layout name here does not matter
+		POBJ_LAYOUT_ROOT(libpmemobj_secure, root);
+		POBJ_LAYOUT_TOID(libpmemobj_secure, shadowmem);
+		POBJ_LAYOUT_END(libpmemobj_secure);
+	};
+
+	PMEMobjpool *spmemobj_open(const char *path, const char *layout);
+	PMEMobjpool *spmemobj_create(const char *path, const char *layout, size_t poolsize, mode_t mode);
+	void spmemobj_close(PMEMobjpool *pop);
+	
+	PMEMoid spmemobj_root(PMEMobjpool *pop, size_t size);
+	PMEMoid spmemobj_root_construct(PMEMobjpool *pop, size_t size, pmemobj_constr constructor, void *arg);
+	size_t spmemobj_root_size(PMEMobjpool *pop);
+	
+	PMEMoid spmemobj_tx_alloc(size_t size, uint64_t type_num);
+	PMEMoid spmemobj_tx_zalloc(size_t size, uint64_t type_num);
+	PMEMoid spmemobj_tx_realloc(PMEMoid oid, size_t size, uint64_t type_num);
+	PMEMoid spmemobj_tx_zrealloc(PMEMoid oid, size_t size, uint64_t type_num);
+	PMEMoid spmemobj_tx_strdup(const char *s, uint64_t type_num);
+	int spmemobj_tx_free(PMEMoid oid);
+};
+
+#endif
