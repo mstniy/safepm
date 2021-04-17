@@ -49,13 +49,13 @@ namespace spmo {
 		PMEMobjpool* pool = pmemobj_create(path, layout, poolsize, mode);
 		if (pool == NULL)
 			return NULL;
-		TOID(struct root) roott = POBJ_ROOT(pool, struct root);
+		TOID(struct detail::root) roott = POBJ_ROOT(pool, struct detail::root);
 		
 		TX_BEGIN(pool) {
-			root* rootp = D_RW(roott);
+			detail::root* rootp = D_RW(roott);
 			size_t shadow_size = (poolsize-detail::LIBPMEMOBJ_HEADER_SIZE)/8;
 			// Allocate and zero-initialize the persistent shadow memory
-			assert(0 == POBJ_ZALLOC(pool, &rootp->shadow_mem, struct shadowmem, shadow_size));
+			assert(0 == POBJ_ZALLOC(pool, &rootp->shadow_mem, struct detail::shadowmem, shadow_size));
 			// Overmap the persistent shadow memory on top of the (volatile) shadow memory created by ASan
 			detail::overmap_pool(path, pool);
 			

@@ -2,20 +2,21 @@
 #define LIBPMEMOBJ_SECURE_H
 
 #include <libpmemobj.h>
-
-POBJ_LAYOUT_BEGIN(libpmemobj_secure); // The exact layout name here does not matter
-POBJ_LAYOUT_ROOT(libpmemobj_secure, struct root);
-POBJ_LAYOUT_TOID(libpmemobj_secure, struct shadowmem);
-POBJ_LAYOUT_END(libpmemobj_secure);
-
-struct shadowmem {}; // A dummy type, whose type number is used for the shadow memory.
-
-struct root {
-	TOID(struct shadowmem) shadow_mem;
-	PMEMoid real_root;
-};
-
 namespace spmo {
+
+	namespace detail {
+		POBJ_LAYOUT_BEGIN(libpmemobj_secure); // The exact layout name here does not matter
+		POBJ_LAYOUT_ROOT(libpmemobj_secure, struct root);
+		POBJ_LAYOUT_TOID(libpmemobj_secure, struct shadowmem);
+		POBJ_LAYOUT_END(libpmemobj_secure);
+
+		struct shadowmem {}; // A dummy type, whose type number is used for the shadow memory.
+
+		struct root {
+			TOID(struct shadowmem) shadow_mem;
+			PMEMoid real_root;
+		};
+	};
 
 PMEMobjpool *spmemobj_open(const char *path, const char *layout);
 PMEMobjpool *spmemobj_create(const char *path, const char *layout, size_t poolsize, mode_t mode);
