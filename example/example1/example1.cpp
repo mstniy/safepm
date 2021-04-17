@@ -1,4 +1,4 @@
-#include "../libpmemobj_secure.h"
+#include <libpmemobj_secure.h>
 #include <iostream>
 
 int main()

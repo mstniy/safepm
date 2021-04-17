@@ -3,24 +3,28 @@
 #include "overmap_shadow_mem.h"
 
 #include <sys/stat.h>
+#include <fcntl.h>           /* For O_* constants */
 #include <string>
+#include <assert.h>
 
 namespace spmo {
 
 	namespace detail {
+		constexpr size_t LIBPMEMOBJ_HEADER_SIZE = 8192;
+
 		void overmap_pool(const char* path, PMEMobjpool* pool) {
-			TOID(detail::root) root = POBJ_ROOT(pool, detail::root);
-			const detail::root *rootp = D_RO(root);
-			uint64_t shadow_mem_off = rootp->shadow_mem->off;
+			TOID(struct root) roott = POBJ_ROOT(pool, struct root);
+			const root *rootp = D_RO(roott);
+			uint64_t shadow_mem_off = rootp->shadow_mem.oid.off;
 			int fd = open(path, O_RDWR);
 			assert(fd != -1); // TODO: Handle errors gracefully
 			struct stat pool_stat;
-			assert(fstat(fd, &pool_state) == 0);
+			assert(fstat(fd, &pool_stat) == 0);
 			off_t pool_size = pool_stat.st_size;
 			// Because overMapShadowMem requires 8kb*4 alignment, and pmemobj_open does not guarantee such an alignment,
 			//   we (possibly) forgo memory protection at the very start & end of the usable portion of the pool.
 			// TODO: Solve this issue.
-			uint64_t usable_start = (uint64_t)pool + sizeof(PMEMobjpool); // sizeof(PMEMobjpool) is the size of the header = 8kb
+			uint64_t usable_start = (uint64_t)pool + LIBPMEMOBJ_HEADER_SIZE;
 			uint64_t usable_start_misalignment = usable_start % (8*4096); // 8*4kb is the alignment required by overMapShadowMem
 			uint64_t usable_start_aligned = (usable_start_misalignment == 0) ? usable_start : (usable_start + 8*4096 - usable_start_misalignment);
 			uint64_t pool_end = (uint64_t)pool + pool_size;
@@ -45,17 +49,17 @@ namespace spmo {
 		PMEMobjpool* pool = pmemobj_create(path, layout, poolsize, mode);
 		if (pool == NULL)
 			return NULL;
-		TOID(detail::root) root = POBJ_ROOT(pool, detail::root);
+		TOID(struct root) roott = POBJ_ROOT(pool, struct root);
 		
 		TX_BEGIN(pool) {
-			detail::root* rootp = D_RW(root);
-			size_t shadow_size = (poolsize-sizeof(PMEMobjpool))/8;
+			root* rootp = D_RW(roott);
+			size_t shadow_size = (poolsize-detail::LIBPMEMOBJ_HEADER_SIZE)/8;
 			// Allocate and zero-initialize the persistent shadow memory
-			assert(0 == POBJ_ZALLOC(pool, &rootp->shadow_mem, detail::shadowmem, shadow_size));
+			assert(0 == POBJ_ZALLOC(pool, &rootp->shadow_mem, struct shadowmem, shadow_size));
 			// Overmap the persistent shadow memory on top of the (volatile) shadow memory created by ASan
 			detail::overmap_pool(path, pool);
 			
-			uint8_t* vmem_shadow_mem_start = D_RW(rootp->shadow_mem);
+			uint8_t* vmem_shadow_mem_start = (uint8_t*)D_RW(rootp->shadow_mem);
 			uint8_t* vmem_shadow_mem_end = vmem_shadow_mem_start + shadow_size;
 			
 			void* shadow_shadow_mem_start = detail::get_shadow_mem_location(vmem_shadow_mem_start);
