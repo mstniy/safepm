@@ -32,10 +32,14 @@ namespace spmo {
 			uint64_t pool_end_aligned = pool_end - pool_end_misalignment;
 			overMapShadowMem((volatile void*)usable_start_aligned, (volatile void *)pool_end_aligned, fd, shadow_mem_off+(usable_start_aligned-usable_start)/8);
 		}
+		
+		std::string add_layout_prefix(const char* real_layout) {
+			return std::string("spmo_") + real_layout;
+		}
 	};
 
 	PMEMobjpool *spmemobj_open(const char *path, const char *real_layout) {
-		std::string layout = std::string("spmo_") + real_layout;
+		std::string layout = detail::add_layout_prefix(real_layout);
 		PMEMobjpool* pool = pmemobj_open(path, layout.c_str());
 		if (pool == NULL)
 			return NULL;
@@ -43,13 +47,15 @@ namespace spmo {
 		
 		return pool;
 	}
-	PMEMobjpool *spmemobj_create(const char *path, const char *layout, size_t poolsize, mode_t mode) {
+	PMEMobjpool *spmemobj_create(const char *path, const char *real_layout, size_t poolsize, mode_t mode) {
+		std::string layout = detail::add_layout_prefix(real_layout);
 		if (poolsize%64) // Poolsize needs to be 64-padded because shadow_size needs to be 8-padded (for marking the red-zone)
 			poolsize += 64 - poolsize%64;
-		PMEMobjpool* pool = pmemobj_create(path, layout, poolsize, mode);
+		PMEMobjpool* pool = pmemobj_create(path, layout.c_str(), poolsize, mode);
 		if (pool == NULL)
 			return NULL;
 		TOID(struct detail::root) roott = POBJ_ROOT(pool, struct detail::root);
+		assert(TOID_IS_NULL(roott) == false);
 		
 		TX_BEGIN(pool) {
 			detail::root* rootp = D_RW(roott);
