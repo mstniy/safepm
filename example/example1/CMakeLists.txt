@@ -6,14 +6,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 include(ExternalProject)
 
 ExternalProject_Add(pmdk
-  SOURCE_DIR "../../../../pmdk"
+  SOURCE_DIR "../../../pmdk"
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND $(MAKE)
   INSTALL_COMMAND $(MAKE) install "prefix=${CMAKE_BINARY_DIR}/pmdk/install"
 )
 
-include_directories("../../../pmdk/src/include")
+include_directories("../../pmdk/src/include")
 link_directories("${CMAKE_BINARY_DIR}/pmdk/install/lib")
 
 project (SPMO CXX)
