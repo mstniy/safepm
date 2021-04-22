@@ -21,16 +21,8 @@ namespace spmo {
 			struct stat pool_stat;
 			assert(fstat(fd, &pool_stat) == 0);
 			off_t pool_size = pool_stat.st_size;
-			// Because overMapShadowMem requires 8kb*4 alignment, and pmemobj_open does not guarantee such an alignment,
-			//   we (possibly) forgo memory protection at the very start & end of the usable portion of the pool.
-			// TODO: Solve this issue.
-			uint64_t usable_start = (uint64_t)pool + LIBPMEMOBJ_HEADER_SIZE;
-			uint64_t usable_start_misalignment = usable_start % (8*4096); // 8*4kb is the alignment required by overMapShadowMem
-			uint64_t usable_start_aligned = (usable_start_misalignment == 0) ? usable_start : (usable_start + 8*4096 - usable_start_misalignment);
 			uint64_t pool_end = (uint64_t)pool + pool_size;
-			uint64_t pool_end_misalignment = pool_end % (8*4096); // 8*4kb is the alignment required by overMapShadowMem
-			uint64_t pool_end_aligned = pool_end - pool_end_misalignment;
-			overMapShadowMem((volatile void*)usable_start_aligned, (volatile void *)pool_end_aligned, fd, shadow_mem_off+(usable_start_aligned-usable_start)/8);
+			overMapShadowMem((volatile void*)pool, (volatile void *)pool_end, fd, shadow_mem_off);
 		}
 		
 		std::string add_layout_prefix(const char* real_layout) {
@@ -49,40 +41,42 @@ namespace spmo {
 	}
 	PMEMobjpool *spmemobj_create(const char *path, const char *real_layout, size_t poolsize, mode_t mode) {
 		std::string layout = detail::add_layout_prefix(real_layout);
-		if (poolsize%64) // Poolsize needs to be 64-padded because shadow_size needs to be 8-padded (for marking the red-zone)
-			poolsize += 64 - poolsize%64;
+		if (poolsize%(4096*8)) // Poolsize needs to be 8*4kb-padded because the shadow memory needs to be 4kb-padded (for marking the red-zone)
+			poolsize += (4096*8) - poolsize%(4096*8);
 		PMEMobjpool* pool = pmemobj_create(path, layout.c_str(), poolsize, mode);
 		if (pool == NULL)
 			return NULL;
 		TOID(struct detail::root) roott = POBJ_ROOT(pool, struct detail::root);
 		assert(TOID_IS_NULL(roott) == false);
+
+		detail::root* rootp = D_RW(roott);
+		size_t shadow_size = poolsize/8; // The shadow memory encompasses information about the whole pool: including the pmdk header and the shadow memory itself
+		// Allocate and zero-initialize the persistent shadow memory
+		TOID(struct detail::shadowmem) shadow_mem;
 		
-		TX_BEGIN(pool) {
-			detail::root* rootp = D_RW(roott);
-			size_t shadow_size = (poolsize-detail::LIBPMEMOBJ_HEADER_SIZE)/8;
-			// Allocate and zero-initialize the persistent shadow memory
-			assert(0 == POBJ_ZALLOC(pool, &rootp->shadow_mem, struct detail::shadowmem, shadow_size));
-			// Overmap the persistent shadow memory on top of the (volatile) shadow memory created by ASan
-			detail::overmap_pool(path, pool);
-			
-			uint8_t* vmem_shadow_mem_start = (uint8_t*)D_RW(rootp->shadow_mem);
-			uint8_t* vmem_shadow_mem_end = vmem_shadow_mem_start + shadow_size;
-			
-			void* shadow_shadow_mem_start = detail::get_shadow_mem_location(vmem_shadow_mem_start);
-			
-			// Mark the red zone within the persistent shadow mem
-			// The red zone corresponding to the volatile persistent memory range is marked non-accessible on a page permission level, because filling the red zone with -1 would allocate physical memory.
-			// But we simply set it to -1 
-			pmemobj_tx_add_range_direct(shadow_shadow_mem_start, shadow_size/8);
-			memset(shadow_shadow_mem_start, -1, shadow_size/8); // Note that because of the overmapping, this line will operate on persistent memory
-		}
-		TX_ONABORT {
-			assert(false);
-		} TX_END
+		assert(0 == POBJ_ZALLOC(pool, &shadow_mem, struct detail::shadowmem, shadow_size+4096)); // The offset of the shadow memory needs to be 4k aligned (because we want to be able to map it independently of the rest of the pool), so alloate some additional space
+		if (shadow_mem.oid.off % (4096)) // Make sure the shadow mem offset is 4kb aligned. We don't need to store the original address returned by POBJ_ZALLOC because we won't free the shadow memory
+			shadow_mem.oid.off += 4096 - shadow_mem.oid.off%(4096);
+		rootp->shadow_mem = shadow_mem;
+
+		// Overmap the persistent shadow memory on top of the (volatile) shadow memory created by ASan
+		detail::overmap_pool(path, pool);
+		
+		uint8_t* vmem_shadow_mem_start = (uint8_t*)D_RW(rootp->shadow_mem);
+		
+		// Mark the red zone within the persistent shadow mem
+		// The red zone corresponding to the volatile persistent memory range is marked non-accessible on a page permission level, because filling the red zone with -1 would allocate physical memory.
+		// But we simply set it to -1
+		void* shadow_shadow_mem_start = detail::get_shadow_mem_location(vmem_shadow_mem_start);
+		pmemobj_memset_persist(pool, shadow_shadow_mem_start, -1, shadow_size/8); // Note that because of the overmapping, the change will be mirrored to the overmapped shadow memory.
 		
 		return pool;
 	}
-	void spmemobj_close(PMEMobjpool *pop);
+
+	void spmemobj_close(PMEMobjpool *pop) {
+		pmemobj_close(pop);
+		//TODO: Undo the overmap
+	}
 	
 	PMEMoid spmemobj_root(PMEMobjpool *pop, size_t size);
 	PMEMoid spmemobj_root_construct(PMEMobjpool *pop, size_t size, pmemobj_constr constructor, void *arg);
