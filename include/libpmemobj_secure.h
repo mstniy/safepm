@@ -14,7 +14,9 @@ namespace spmo {
 
 		struct root {
 			TOID(struct shadowmem) shadow_mem;
+			uint64_t pool_size;
 			PMEMoid real_root;
+			uint64_t real_root_size;
 		};
 	};
 

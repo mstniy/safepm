@@ -7,6 +7,7 @@ namespace spmo {
 namespace detail {
 
 void overMapShadowMem(volatile void* start, volatile void* end, int new_shadow_fd, off_t fd_offset);
+void undoOverMap(volatile void* start, volatile void* end);
 
 };
 };
