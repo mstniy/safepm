@@ -12,7 +12,6 @@
 namespace spmo {
 
 	namespace detail {
-		constexpr size_t LIBPMEMOBJ_HEADER_SIZE = 8192;
 		const size_t RED_ZONE_SIZE = 256;
 
 		void overmap_pool(const char* path, PMEMobjpool* pool) {
@@ -36,6 +35,17 @@ namespace spmo {
 		std::string add_layout_prefix(const char* real_layout) {
 			return std::string("spmo_") + real_layout;
 		}
+
+		// Even with no_sanitize, calls to memset get intercepted by ASan,
+		//  which is uncomfortable with us directly modifying the shadow memory
+		__attribute__((no_sanitize("address")))
+		void mymemset(uint8_t* start, uint8_t byt, size_t len) {
+			while (len) {
+				*start = byt;
+				start++;
+				len--;
+			}
+		}
 		
 		// len in bytes
 		__attribute__((no_sanitize("address")))
@@ -51,7 +61,7 @@ namespace spmo {
 				start = (void*)(uint64_t(start)+8-misalignment);
 				len -= 8-misalignment;
 			}
-			memset(get_shadow_mem_location(start), tag, len/8);
+			mymemset(get_shadow_mem_location(start), tag, len/8);
 			if (len%8) {
 				int prot = len%8;
 				uint8_t* shadow_pos = get_shadow_mem_location((uint8_t*)start+len);
@@ -70,11 +80,11 @@ namespace spmo {
 			mark_mem(direct, RED_ZONE_SIZE, TAG::LEFT_REDZONE);
 			mark_mem(direct+RED_ZONE_SIZE, size, TAG::ADDRESSABLE); // In case it was poisoned by an earlier free
 			mark_mem(direct+RED_ZONE_SIZE+size, RED_ZONE_SIZE, TAG::RIGHT_REDZONE);
-			uint8_t* shadow_start = get_shadow_mem_location(direct);
-			uint8_t* shadow_end = get_shadow_mem_location(direct+size);
-			if (uint64_t(direct+size)%8)
-				shadow_end++;
-			int res = pmemobj_tx_add_range_direct(shadow_start, shadow_end-shadow_start);
+			PMEMobjpool* pool = pmemobj_pool_by_oid(orig);
+			TOID(struct root) rootp_ = POBJ_ROOT(pool, struct root); // TODO: A tighter integration with libpmemobj could let us avoid re-retrieving the persistent shadow memory location for each operation
+			const struct root* rootp = D_RO(rootp_);
+
+			int res = pmemobj_tx_add_range(rootp->shadow_mem.oid, orig.off/8, (2*RED_ZONE_SIZE+size+7)/8);
 			if (res) {
 				return OID_NULL;
 			}
@@ -126,8 +136,16 @@ namespace spmo {
 		// But we simply set it to -1
 		// TODO: For portions of the persistent shadow memory that correspond to itself, avoid marking them -1 and instead mark them no read/write using page permissions.
 		//       Just like the regular ASan
-		void* shadow_shadow_mem_start = detail::get_shadow_mem_location(vmem_shadow_mem_start);
-		pmemobj_memset_persist(pool, shadow_shadow_mem_start, -1, shadow_size/8); // Note that because of the overmapping, the change will be mirrored to the overmapped shadow memory.
+		//pmemobj_memset_persist(pool, vmem_shadow_mem_start + rootp->shadow_mem.oid.off/8, detail::TAG::INTERNAL, shadow_size/8); // Note that because of the overmapping, the change will be mirrored to the overmapped shadow memory.
+		
+		// This is disabled for now, because:
+		// During transactional memory operations we need to add parts of the shadow memory to the undo log.
+		// Adding the shadow memory to the transaction undo log causes libpmemobj
+		//  to copy it, using memcpy. This call gets intercepted and instrumented by ASan.
+		//  Because the persistent shadow memory (in the original file mapping) is marked inaccessible,
+		//    ASan memcpy raises an error.
+		//detail::mymemset(vmem_shadow_mem_start + rootp->shadow_mem.oid.off/8, detail::TAG::INTERNAL, shadow_size/8);
+		//pmemobj_persist(pool, vmem_shadow_mem_start + rootp->shadow_mem.oid.off/8, shadow_size/8);
 		
 		return pool;
 	}

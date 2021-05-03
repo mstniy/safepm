@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <assert.h>
+#include <iostream>
 
 #include "common.h"
 
@@ -18,6 +19,7 @@ namespace spmo {
 		    uint8_t* shadow_start = get_shadow_mem_location((void*)start);
 		    assert((uint64_t)shadow_start % 4096 == 0);
 		    assert((uint64_t)get_shadow_mem_location((void*)end) % 4096 == 0);
+			//std::cout << "Overmapping the address range " << (void*)shadow_start << " ... " << (void*)(shadow_start+size) << std::endl;
 		    void* res = mmap((void*)shadow_start, size, prot, MAP_SHARED | MAP_FIXED, new_shadow_fd, fd_offset);
 		    assert(res == (void*)shadow_start);
 		}

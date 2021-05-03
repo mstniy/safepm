@@ -28,6 +28,7 @@ namespace spmo {
 			static const uint8_t LEFT_REDZONE=0xFA;
 			static const uint8_t RIGHT_REDZONE=0xFB;
 			static const uint8_t FREED=0xFD;
+			static const uint8_t INTERNAL=0xFE;
 		};
 	};
 
