@@ -7,11 +7,13 @@
 #include <unistd.h>
 #include <string>
 #include <assert.h>
+#include <iostream>
 
 namespace spmo {
 
 	namespace detail {
 		constexpr size_t LIBPMEMOBJ_HEADER_SIZE = 8192;
+		const size_t RED_ZONE_SIZE = 256;
 
 		void overmap_pool(const char* path, PMEMobjpool* pool) {
 			TOID(struct root) roott = POBJ_ROOT(pool, struct root);
@@ -33,6 +35,51 @@ namespace spmo {
 		
 		std::string add_layout_prefix(const char* real_layout) {
 			return std::string("spmo_") + real_layout;
+		}
+		
+		// len in bytes
+		__attribute__((no_sanitize("address")))
+		void mark_mem(void* start, size_t len, uint8_t tag) {
+			assert(int8_t(tag) <= 0);
+			if (uint64_t(start)%8) {
+				int misalignment = uint64_t(start)%8;
+				uint8_t* shadow_pos = get_shadow_mem_location(start);
+				if (tag)
+					*shadow_pos = misalignment; // We don't really need to check the previous value of *shadow_start here, because pmemobj would not distribute the same 8-byte chunk to multiple objects.
+				else
+					*shadow_pos = 0;				
+				start = (void*)(uint64_t(start)+8-misalignment);
+				len -= 8-misalignment;
+			}
+			memset(get_shadow_mem_location(start), tag, len/8);
+			if (len%8) {
+				int prot = len%8;
+				uint8_t* shadow_pos = get_shadow_mem_location((uint8_t*)start+len);
+				if (tag)
+					*shadow_pos = prot;
+				else
+					*shadow_pos = 0;
+			}
+		}
+		
+		PMEMoid alloc_additional_work(PMEMoid orig, size_t size) {
+			if (OID_IS_NULL(orig)) {
+				return orig;
+			}
+			uint8_t* direct = (uint8_t*)pmemobj_direct(orig);
+			mark_mem(direct, RED_ZONE_SIZE, TAG::LEFT_REDZONE);
+			mark_mem(direct+RED_ZONE_SIZE, size, TAG::ADDRESSABLE); // In case it was poisoned by an earlier free
+			mark_mem(direct+RED_ZONE_SIZE+size, RED_ZONE_SIZE, TAG::RIGHT_REDZONE);
+			uint8_t* shadow_start = get_shadow_mem_location(direct);
+			uint8_t* shadow_end = get_shadow_mem_location(direct+size);
+			if (uint64_t(direct+size)%8)
+				shadow_end++;
+			int res = pmemobj_tx_add_range_direct(shadow_start, shadow_end-shadow_start);
+			if (res) {
+				return OID_NULL;
+			}
+			orig.off += RED_ZONE_SIZE;
+			return orig;
 		}
 	};
 
@@ -90,14 +137,56 @@ namespace spmo {
 		pmemobj_close(pop);
 	}
 	
-	PMEMoid spmemobj_root(PMEMobjpool *pop, size_t size);
+	PMEMoid spmemobj_root(PMEMobjpool *pool, size_t size) {
+		TOID(struct detail::root) roott = POBJ_ROOT(pool, struct detail::root);
+		assert(TOID_IS_NULL(roott) == false);
+
+		detail::root* rootp = D_RW(roott);
+		if (OID_IS_NULL(rootp->real_root)) {
+			TX_BEGIN(pool) {
+				PMEMoid real_root = spmemobj_tx_alloc(size, POBJ_ROOT_TYPE_NUM);
+
+				pmemobj_tx_add_range_direct(&rootp->real_root, 24);
+
+				rootp->real_root = real_root;
+				rootp->real_root_size = size;
+
+				return real_root;
+			} TX_END
+			
+			return OID_NULL;
+		}
+		else {
+			// TODO: Remove this condition once we implement realloc
+			assert(rootp->real_root_size >= size);
+			return rootp->real_root;
+		}
+	}
 	PMEMoid spmemobj_root_construct(PMEMobjpool *pop, size_t size, pmemobj_constr constructor, void *arg);
 	size_t spmemobj_root_size(PMEMobjpool *pop);
 	
-	PMEMoid spmemobj_tx_alloc(size_t size, uint64_t type_num);
-	PMEMoid spmemobj_tx_zalloc(size_t size, uint64_t type_num);
+	PMEMoid spmemobj_tx_alloc(size_t size, uint64_t type_num) {
+		//TODO: A custom allocator could save us one redzone per object.
+		PMEMoid orig = pmemobj_tx_alloc(size+2*detail::RED_ZONE_SIZE, type_num+TOID_TYPE_NUM(struct detail::end));
+		return detail::alloc_additional_work(orig, size);
+	}
+	int spmemobj_tx_free(PMEMoid oid) {
+		//TODO: Check for possible double-free. What if the user passes an object not allocated by spmemobj_* ? We must use a custom allocator/modify the existing one/look inside the internal state of the existing one.
+		//  OR, we could store object size in the left redzone.
+		//    ASAN stores alloc/free stack traces there, but they aren't immediately useful in the context of persistent memory.
+		PMEMoid oid2 = oid;
+		oid2.off -= detail::RED_ZONE_SIZE;
+		int res = pmemobj_tx_free(oid2);
+		if (res)
+			return res;
+		// TODO: Poison the memory. This requires us to know the size of the object being freed.
+		return 0;
+	}
+	PMEMoid spmemobj_tx_zalloc(size_t size, uint64_t type_num) {
+		PMEMoid orig = pmemobj_tx_zalloc(size+2*detail::RED_ZONE_SIZE, type_num+TOID_TYPE_NUM(struct detail::end));
+		return detail::alloc_additional_work(orig, size);
+	}
 	PMEMoid spmemobj_tx_realloc(PMEMoid oid, size_t size, uint64_t type_num);
 	PMEMoid spmemobj_tx_zrealloc(PMEMoid oid, size_t size, uint64_t type_num);
 	PMEMoid spmemobj_tx_strdup(const char *s, uint64_t type_num);
-	int spmemobj_tx_free(PMEMoid oid);
 };

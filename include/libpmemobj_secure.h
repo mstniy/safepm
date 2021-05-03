@@ -8,6 +8,7 @@ namespace spmo {
 		POBJ_LAYOUT_BEGIN(libpmemobj_secure); // The exact layout name here does not matter
 		POBJ_LAYOUT_ROOT(libpmemobj_secure, struct root);
 		POBJ_LAYOUT_TOID(libpmemobj_secure, struct shadowmem);
+		POBJ_LAYOUT_TOID(libpmemobj_secure, struct end); // A special type marking the highest type number used by SPMO
 		POBJ_LAYOUT_END(libpmemobj_secure);
 
 		struct shadowmem {}; // A dummy type, whose type number is used for the shadow memory.
@@ -17,6 +18,16 @@ namespace spmo {
 			uint64_t pool_size;
 			PMEMoid real_root;
 			uint64_t real_root_size;
+		};
+		
+		struct end {};
+		
+		class TAG {
+			public:
+			static const uint8_t ADDRESSABLE=0;
+			static const uint8_t LEFT_REDZONE=0xFA;
+			static const uint8_t RIGHT_REDZONE=0xFB;
+			static const uint8_t FREED=0xFD;
 		};
 	};
 

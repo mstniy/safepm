@@ -20,7 +20,7 @@ file (GLOB SOURCES "src/*.cpp")
 add_library (spmo STATIC ${SOURCES})
 add_dependencies(spmo pmdk)
 target_include_directories(spmo PUBLIC include)
-target_link_libraries(spmo pmemobj)
+target_link_libraries(spmo pmemobj pmem)
 target_include_directories(spmo PUBLIC "${PMDK_INSTALL_DIR}/include")
 target_link_directories(spmo PUBLIC "${PMDK_INSTALL_DIR}/lib/pmdk_debug")
 
