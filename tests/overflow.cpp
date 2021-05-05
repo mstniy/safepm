@@ -1,10 +1,11 @@
 #include <libpmemobj_secure.h>
 #include <iostream>
 #include <assert.h>
+#include <unistd.h>
 
-POBJ_LAYOUT_BEGIN(example1);
-POBJ_LAYOUT_ROOT(example1, struct root);
-POBJ_LAYOUT_END(example1);
+POBJ_LAYOUT_BEGIN(spmo_test);
+POBJ_LAYOUT_ROOT(spmo_test, struct root);
+POBJ_LAYOUT_END(spmo_test);
 
 struct root {
 	uint64_t arr[2];
@@ -12,12 +13,9 @@ struct root {
 
 int main()
 {
-	PMEMobjpool* pool = spmo::spmemobj_open("pool", "example1");
-	if (pool == NULL) {
-		 // Try to create it
-		pool = spmo::spmemobj_create("pool", "example1", 32*1024*1024, 0660);
-		assert(pool != NULL);
-	}
+	unlink("spmo_test.pool");
+	PMEMobjpool* pool = spmo::spmemobj_create("spmo_test.pool", "spmo_test", 32*1024*1024, 0660);
+	assert(pool != NULL);
 	
 	PMEMoid proot_ = spmo::spmemobj_root(pool, sizeof(struct root));
 	assert(OID_IS_NULL(proot_) == false);

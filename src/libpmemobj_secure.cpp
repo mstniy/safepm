@@ -196,8 +196,8 @@ namespace spmo {
 	}
 	int spmemobj_tx_free(PMEMoid oid) {
 		uint8_t* shadow_object_start = detail::get_shadow_mem_location(pmemobj_direct(oid));
-		assert(int8_t(*shadow_object_start) >= 0); // Check for possible double-free
-		assert(*(shadow_object_start-1) == detail::TAG::LEFT_REDZONE); // Check that this free matches a previous alloc
+		assert(int8_t(*shadow_object_start) >= 0 && "Invalid free");
+		assert(*(shadow_object_start-1) == detail::TAG::LEFT_REDZONE && "Invalid free");
 		PMEMoid redzone_start{.pool_uuid_lo = oid.pool_uuid_lo, .off = oid.off - detail::RED_ZONE_SIZE};
 		int res;
 		if (res = pmemobj_tx_free(redzone_start)) // TODO: Quarantine the region to provide additional temporal safety

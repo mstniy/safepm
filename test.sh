@@ -12,3 +12,4 @@ set +e
 ../../should_crash.sh ./mismatched_free.exe
 ../../should_crash.sh ./double_free.exe
 ../../should_crash.sh ./use_after_free.exe
+../../should_crash.sh ./overflow.exe
