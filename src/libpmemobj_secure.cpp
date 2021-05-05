@@ -54,10 +54,7 @@ namespace spmo {
 			if (uint64_t(start)%8) {
 				int misalignment = uint64_t(start)%8;
 				uint8_t* shadow_pos = get_shadow_mem_location(start);
-				if (tag)
-					*shadow_pos = misalignment; // We don't really need to check the previous value of *shadow_start here, because pmemobj would not distribute the same 8-byte chunk to multiple objects.
-				else
-					*shadow_pos = 0;				
+				*shadow_pos = tag;
 				start = (void*)(uint64_t(start)+8-misalignment);
 				len -= 8-misalignment;
 			}
@@ -66,9 +63,9 @@ namespace spmo {
 				int prot = len%8;
 				uint8_t* shadow_pos = get_shadow_mem_location((uint8_t*)start+len);
 				if (tag)
-					*shadow_pos = prot;
+					*shadow_pos = tag; // We don't really need to check the previous value of *shadow_start here, because pmemobj would not distribute the same 8-byte chunk to multiple objects.
 				else
-					*shadow_pos = 0;
+					*shadow_pos = prot;
 			}
 		}
 
@@ -79,11 +76,13 @@ namespace spmo {
 			return rootp->shadow_mem.oid;
 		}
 		
+		__attribute__((no_sanitize("address")))
 		PMEMoid alloc_additional_work(PMEMoid orig, size_t size) {
 			if (OID_IS_NULL(orig)) {
 				return orig;
 			}
 			uint8_t* direct = (uint8_t*)pmemobj_direct(orig);
+			*(uint64_t*)direct = size; // Remember the size of the object in the first 8 bytes of the left redzone
 			mark_mem(direct, RED_ZONE_SIZE, TAG::LEFT_REDZONE);
 			mark_mem(direct+RED_ZONE_SIZE, size, TAG::ADDRESSABLE); // In case it was poisoned by an earlier free
 			mark_mem(direct+RED_ZONE_SIZE+size, RED_ZONE_SIZE, TAG::RIGHT_REDZONE);
@@ -194,6 +193,7 @@ namespace spmo {
 		PMEMoid orig = pmemobj_tx_alloc(size+2*detail::RED_ZONE_SIZE, type_num+TOID_TYPE_NUM(struct detail::end));
 		return detail::alloc_additional_work(orig, size);
 	}
+	__attribute__((no_sanitize("address")))
 	int spmemobj_tx_free(PMEMoid oid) {
 		uint8_t* shadow_object_start = detail::get_shadow_mem_location(pmemobj_direct(oid));
 		assert(int8_t(*shadow_object_start) >= 0 && "Invalid free");
@@ -203,12 +203,10 @@ namespace spmo {
 		if (res = pmemobj_tx_free(redzone_start)) // TODO: Quarantine the region to provide additional temporal safety
 			return res;
 
-		uint8_t* shadow_right_redzone_start = shadow_object_start;
-		while (*shadow_right_redzone_start != detail::TAG::RIGHT_REDZONE) // TODO: Store the object size in the left redzone
-			shadow_right_redzone_start++;
-		size_t total_len = (shadow_right_redzone_start-shadow_object_start)*8+2*detail::RED_ZONE_SIZE;
+		uint64_t size = *(uint64_t*)pmemobj_direct(redzone_start); // Read the object size off the red zone
+		size_t total_len = size+2*detail::RED_ZONE_SIZE;
 		PMEMoid shadow_oid = detail::get_persistent_shadow_mem_from_oid(oid);
-		if (res = pmemobj_tx_add_range(shadow_oid, redzone_start.off/8, total_len/8))
+		if (res = pmemobj_tx_add_range(shadow_oid, redzone_start.off/8, (total_len+7)/8))
 			return res;
 		detail::mark_mem(pmemobj_direct(redzone_start), total_len, detail::TAG::FREED);
 
