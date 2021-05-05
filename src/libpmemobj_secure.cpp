@@ -161,18 +161,19 @@ namespace spmo {
 
 		detail::root* rootp = D_RW(roott);
 		if (OID_IS_NULL(rootp->real_root)) {
+			PMEMoid real_root;
 			TX_BEGIN(pool) {
-				PMEMoid real_root = spmemobj_tx_alloc(size, POBJ_ROOT_TYPE_NUM);
+				real_root = spmemobj_tx_alloc(size, POBJ_ROOT_TYPE_NUM);
 
 				pmemobj_tx_add_range_direct(&rootp->real_root, 24);
 
 				rootp->real_root = real_root;
 				rootp->real_root_size = size;
-
-				return real_root;
+			} TX_ONABORT {
+				return OID_NULL;
 			} TX_END
 			
-			return OID_NULL;
+			return real_root;
 		}
 		else {
 			// TODO: Remove this condition once we implement realloc
