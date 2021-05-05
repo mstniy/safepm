@@ -13,7 +13,7 @@ struct root {
 };
 
 struct dummy {
-	uint64_t x;
+	uint64_t x[5];
 };
 
 int main()

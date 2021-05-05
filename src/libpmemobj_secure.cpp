@@ -71,6 +71,13 @@ namespace spmo {
 					*shadow_pos = 0;
 			}
 		}
+
+		PMEMoid get_persistent_shadow_mem_from_oid(PMEMoid oid) {
+			PMEMobjpool* pool = pmemobj_pool_by_oid(oid);
+			TOID(struct root) rootp_ = POBJ_ROOT(pool, struct root); // TODO: A tighter integration with libpmemobj could let us avoid re-retrieving the persistent shadow memory location for each operation
+			const struct root* rootp = D_RO(rootp_);
+			return rootp->shadow_mem.oid;
+		}
 		
 		PMEMoid alloc_additional_work(PMEMoid orig, size_t size) {
 			if (OID_IS_NULL(orig)) {
@@ -80,11 +87,9 @@ namespace spmo {
 			mark_mem(direct, RED_ZONE_SIZE, TAG::LEFT_REDZONE);
 			mark_mem(direct+RED_ZONE_SIZE, size, TAG::ADDRESSABLE); // In case it was poisoned by an earlier free
 			mark_mem(direct+RED_ZONE_SIZE+size, RED_ZONE_SIZE, TAG::RIGHT_REDZONE);
-			PMEMobjpool* pool = pmemobj_pool_by_oid(orig);
-			TOID(struct root) rootp_ = POBJ_ROOT(pool, struct root); // TODO: A tighter integration with libpmemobj could let us avoid re-retrieving the persistent shadow memory location for each operation
-			const struct root* rootp = D_RO(rootp_);
+			PMEMoid shadow = get_persistent_shadow_mem_from_oid(orig);
 
-			int res = pmemobj_tx_add_range(rootp->shadow_mem.oid, orig.off/8, (2*RED_ZONE_SIZE+size+7)/8);
+			int res = pmemobj_tx_add_range(shadow, orig.off/8, (2*RED_ZONE_SIZE+size+7)/8);
 			if (res) {
 				return OID_NULL;
 			}
@@ -190,15 +195,23 @@ namespace spmo {
 		return detail::alloc_additional_work(orig, size);
 	}
 	int spmemobj_tx_free(PMEMoid oid) {
-		//TODO: Check for possible double-free. What if the user passes an object not allocated by spmemobj_* ? We must use a custom allocator/modify the existing one/look inside the internal state of the existing one.
-		//  OR, we could store object size in the left redzone.
-		//    ASAN stores alloc/free stack traces there, but they aren't immediately useful in the context of persistent memory.
-		PMEMoid oid2 = oid;
-		oid2.off -= detail::RED_ZONE_SIZE;
-		int res = pmemobj_tx_free(oid2);
-		if (res)
+		uint8_t* shadow_object_start = detail::get_shadow_mem_location(pmemobj_direct(oid));
+		assert(int8_t(*shadow_object_start) >= 0); // Check for possible double-free
+		assert(*(shadow_object_start-1) == detail::TAG::LEFT_REDZONE); // Check that this free matches a previous alloc
+		PMEMoid redzone_start{.pool_uuid_lo = oid.pool_uuid_lo, .off = oid.off - detail::RED_ZONE_SIZE};
+		int res;
+		if (res = pmemobj_tx_free(redzone_start)) // TODO: Quarantine the region to provide additional temporal safety
 			return res;
-		// TODO: Poison the memory. This requires us to know the size of the object being freed.
+
+		uint8_t* shadow_right_redzone_start = shadow_object_start;
+		while (*shadow_right_redzone_start != detail::TAG::RIGHT_REDZONE) // TODO: Store the object size in the left redzone
+			shadow_right_redzone_start++;
+		size_t total_len = (shadow_right_redzone_start-shadow_object_start)*8+2*detail::RED_ZONE_SIZE;
+		PMEMoid shadow_oid = detail::get_persistent_shadow_mem_from_oid(oid);
+		if (res = pmemobj_tx_add_range(shadow_oid, redzone_start.off/8, total_len/8))
+			return res;
+		detail::mark_mem(pmemobj_direct(redzone_start), total_len, detail::TAG::FREED);
+
 		return 0;
 	}
 	PMEMoid spmemobj_tx_zalloc(size_t size, uint64_t type_num) {
