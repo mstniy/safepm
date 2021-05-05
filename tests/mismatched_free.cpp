@@ -40,9 +40,6 @@ int main()
 		PMEMoid oid = proot->obj.oid;
 		oid.off += 8;
 		spmo::spmemobj_tx_free(oid);
-	} TX_ONCOMMIT {
-		std::cerr << "Mismatched free was not cought" << std::endl;
-		abort();
 	} TX_END
 	
 	spmo::spmemobj_close(pool);

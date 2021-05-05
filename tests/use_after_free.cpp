@@ -45,8 +45,6 @@ int main()
 	
 	struct dummy* pdummy = (struct dummy*)pmemobj_direct(proot->obj.oid);
 	pdummy->x = 1;
-	std::cerr << "Use-after-free was not cought" << std::endl;
-	abort();
 	
 	spmo::spmemobj_close(pool);
 	return 0;

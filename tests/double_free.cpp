@@ -39,9 +39,6 @@ int main()
 	TX_BEGIN(pool) {
 		spmo::spmemobj_tx_free(proot->obj.oid);
 		spmo::spmemobj_tx_free(proot->obj.oid);
-	} TX_ONCOMMIT {
-		std::cerr << "Double free was not cought" << std::endl;
-		abort();
 	} TX_END
 	
 	spmo::spmemobj_close(pool);
