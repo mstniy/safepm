@@ -36,3 +36,4 @@ target_include_directories(spmo PUBLIC "${PMDK_INSTALL_DIR}/include")
 target_link_directories(spmo PUBLIC "${PMDK_INSTALL_DIR}/lib/pmdk_debug")
 
 add_subdirectory(examples)
+add_subdirectory(tests)
