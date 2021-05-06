@@ -53,8 +53,8 @@ namespace spmo {
 			assert(int8_t(tag) <= 0);
 			if (uint64_t(start)%8) {
 				int misalignment = uint64_t(start)%8;
-				uint8_t* shadow_pos = get_shadow_mem_location(start);
-				*shadow_pos = tag;
+				/*uint8_t* shadow_pos = get_shadow_mem_location(start);
+				*shadow_pos = tag;*/ // We can only enter this branch during the marking of the right red-zone for non-multiple-of-8 sized objects. In this case, we must no modify this bit of the shadow memory.
 				start = (void*)(uint64_t(start)+8-misalignment);
 				len -= 8-misalignment;
 			}

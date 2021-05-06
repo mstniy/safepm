@@ -11,5 +11,6 @@ set +e
 
 ../../should_crash.sh "Invalid free" ./mismatched_free.exe
 ../../should_crash.sh "Invalid free" ./double_free.exe
-../../should_crash.sh "[fd]" ./use_after_free.exe
-../../should_crash.sh "[fb]" ./overflow.exe
+../../should_crash.sh "\[fd\]" ./use_after_free.exe
+../../should_crash.sh "\[fb\]" ./overflow.exe
+../../should_crash.sh "\[04\]" ./int32.exe
