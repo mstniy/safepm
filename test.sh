@@ -9,8 +9,8 @@ function should_crash {
   command="$2"
   shift 2
 
-  output=`{ "$command" "$@" 2>&1; }` && (echo -e "${RED}$command did not crash.${NC}"; exit 1)
-  (echo "$output" | grep -- "$snippet") >/dev/null && echo -e "${GREEN}$command OK.${NC}" || echo -e "${RED}Test for $command failed.${NC}"
+  output=`{ "$command" "$@" 2>&1; }` && { echo -e "${RED}$command did not crash.${NC}"; return 1; }
+  (echo "$output" | grep -E -- "$snippet") >/dev/null && echo -e "${GREEN}$command OK.${NC}" || echo -e "${RED}Test for $command failed.${NC}"
 }
 
 cd "$(dirname "$0")"
@@ -22,7 +22,7 @@ cd tests
 
 set +e
 
-should_crash "Invalid free" ./mismatched_free.exe
+should_crash "(Invalid free|memblock_from_offset_opt)" ./mismatched_free.exe
 should_crash "Invalid free" ./double_free.exe
 should_crash "\[fd\]" ./use_after_free.exe
 should_crash "\[fb\]" ./overflow.exe
