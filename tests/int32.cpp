@@ -25,7 +25,6 @@ int main()
 	proot->i = 1;
 	*(uint64_t*)(&proot->i) = 2; // This line should crash
 
-	
 	pmemobj_close(pool);
 	return 0;
 }
