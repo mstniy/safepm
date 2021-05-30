@@ -27,4 +27,5 @@ should_crash "Invalid free" ./double_free.exe
 should_crash "\[fd\]" ./use_after_free.exe
 should_crash "\[fb\]" ./overflow.exe
 should_crash "\[fb\]" ./root_overflow.exe
+should_crash "\[fa\]" ./root_underflow.exe
 should_crash "\[04\]" ./int32.exe
