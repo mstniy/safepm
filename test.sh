@@ -29,3 +29,4 @@ should_crash "\[fb\]" ./overflow.exe
 should_crash "\[fb\]" ./root_overflow.exe
 should_crash "\[fa\]" ./root_underflow.exe
 should_crash "\[04\]" ./int32.exe
+should_crash "\[fd\]" ./alloc_tx_abort.exe
