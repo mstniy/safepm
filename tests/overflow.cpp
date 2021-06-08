@@ -28,7 +28,6 @@ int main()
 
 	TX_BEGIN(pool) {
 		PMEMoid oid = pmemobj_tx_alloc(sizeof(struct dummy), TOID_TYPE_NUM(struct dummy));
-		pmemobj_tx_alloc(sizeof(struct dummy), TOID_TYPE_NUM(struct dummy));
 		pmemobj_tx_add_range_direct(&proot->obj, 16);
 		TOID_ASSIGN(proot->obj, oid);
 	} TX_ONABORT {

@@ -38,6 +38,8 @@ int main()
 	
 	TX_BEGIN(pool) {
 		pmemobj_tx_free(proot->obj.oid);
+	} TX_END
+	TX_BEGIN(pool) { // Because the transactional free is lazy, we commit the previous transaction and start a new one
 		pmemobj_tx_free(proot->obj.oid);
 	} TX_END
 	
