@@ -13,6 +13,14 @@ function should_crash {
   (echo "$output" | grep -E -- "$snippet") >/dev/null && echo -e "${GREEN}$command OK.${NC}" || echo -e "${RED}Test for $command failed.${NC}"
 }
 
+function should_not_crash {
+  command="$1"
+  shift 1
+  
+  ( "$command" "$@" >/dev/null 2>&1 ) || { echo -e "${RED}$command crashed.${NC}"; return 1; }
+  echo -e "${GREEN}$command OK.${NC}"
+}
+
 cd "$(dirname "$0")"
 mkdir -p build
 cd build
@@ -30,3 +38,4 @@ should_crash "00\[fd\]" ./root_overflow.exe
 should_crash "\[fa\]" ./root_underflow.exe
 should_crash "\[04\]" ./int32.exe
 should_crash "\[fd\]" ./alloc_tx_abort.exe
+should_not_crash ./zalloc.exe
