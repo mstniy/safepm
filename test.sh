@@ -38,4 +38,5 @@ should_crash "00\[fb\]" ./root_overflow.exe
 should_crash "\[fa\]" ./root_underflow.exe
 should_crash "\[04\]" ./int32.exe
 should_crash "\[fd\]" ./alloc_tx_abort.exe
+echo "Warning: zalloc.exe takes some time"
 should_not_crash ./zalloc.exe

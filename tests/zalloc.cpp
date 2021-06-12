@@ -14,12 +14,12 @@ struct dummy {
 int main()
 {
 	unlink("spmo_test.pool");
-	PMEMobjpool* pool = pmemobj_create("spmo_test.pool", "spmo_test", 32*1024*1024, 0660);
+	PMEMobjpool* pool = pmemobj_create("spmo_test.pool", "spmo_test", 10*1024*1024, 0660);
 	assert(pool != NULL);
 	
 	TOID(struct dummy) ptr;
 	
-	for (int i=0; i<4096; i++) {
+	for (int i=0; i<1300; i++) {
 
 		TX_BEGIN(pool) {
 			ptr = TX_ZNEW(struct dummy);
@@ -28,8 +28,6 @@ int main()
 			abort();
 		}
 		TX_END
-		
-		std::cout << ptr.oid.off << std::endl;
 		
 		TX_BEGIN(pool) {
 			TX_FREE(ptr);
