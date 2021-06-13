@@ -2,6 +2,7 @@
 #include <iostream>
 #include <assert.h>
 #include <unistd.h>
+#include "common.h"
 
 POBJ_LAYOUT_BEGIN(spmo_test);
 POBJ_LAYOUT_ROOT(spmo_test, struct root);
@@ -28,7 +29,9 @@ int main()
 	assert(0 == POBJ_NEW(pool, &proot->obj, struct dummy, NULL, NULL));
 	TOID(struct dummy) toid = proot->obj; // The FREE call sets proot->obj to NULL, so we create a copy here.
 	POBJ_FREE(&proot->obj);
+	print_pass_flag();
 	D_RW(toid)->x = 1; // This line should crash
+	print_fail_flag();
 	
 	pmemobj_close(pool);
 	return 0;

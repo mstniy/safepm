@@ -2,6 +2,7 @@
 #include <iostream>
 #include <assert.h>
 #include <unistd.h>
+#include "common.h"
 
 POBJ_LAYOUT_BEGIN(spmo_test);
 POBJ_LAYOUT_TOID(spmo_test, struct dummy);
@@ -24,7 +25,9 @@ int main()
 		pmemobj_tx_abort(0);
 	} TX_END
 	
+	print_pass_flag();
 	D_RW(oid)->x[0] = 1; // This line should crash, as the allocation didn't actually happen
+	print_fail_flag();
 	
 	pmemobj_close(pool);
 	return 0;

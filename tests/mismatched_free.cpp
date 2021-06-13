@@ -2,6 +2,7 @@
 #include <iostream>
 #include <assert.h>
 #include <unistd.h>
+#include "common.h"
 
 POBJ_LAYOUT_BEGIN(spmo_test);
 POBJ_LAYOUT_ROOT(spmo_test, struct root);
@@ -39,9 +40,12 @@ int main()
 	TX_BEGIN(pool) {
 		PMEMoid oid = proot->obj.oid;
 		oid.off += 8;
-		pmemobj_tx_free(oid);
+		print_pass_flag();
+		pmemobj_tx_free(oid); // This line should crash
 	} TX_END
-	
+
+	print_fail_flag();
+
 	pmemobj_close(pool);
 	return 0;
 }

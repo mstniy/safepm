@@ -2,6 +2,7 @@
 #include <iostream>
 #include <assert.h>
 #include <unistd.h>
+#include "common.h"
 
 POBJ_LAYOUT_BEGIN(spmo_test);
 POBJ_LAYOUT_ROOT(spmo_test, struct root);
@@ -23,7 +24,9 @@ int main()
 	struct root* proot = (struct root*)pmemobj_direct(proot_);
 	
 	proot->i = 1;
+	print_pass_flag();
 	*(uint64_t*)(&proot->i) = 2; // This line should crash
+	print_fail_flag();
 
 	pmemobj_close(pool);
 	return 0;

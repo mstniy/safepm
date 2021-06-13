@@ -27,6 +27,16 @@ function should_crash {
 
   output=`{ "$command" "$@" 2>&1; }` && { erase_line ; echo -e "${RED}$command did not crash.${NC}"; return 1; }
   erase_line
+  if ! ( echo "$output" | grep PMDK_ASAN_PASS_FLAG) >/dev/null # Crashed too early
+  then
+      echo -e "${RED}Test for $command failed.${NC}"
+      return 1
+  fi
+  if ( echo "$output" | grep PMDK_ASAN_FAIL_FLAG) >/dev/null # Crashed too late
+  then
+      echo -e "${RED}Test for $command failed.${NC}"
+      return 1
+  fi
   (echo "$output" | grep -E -- "$snippet") >/dev/null && echo -e "${GREEN}$command OK.${NC}" || echo -e "${RED}Test for $command failed.${NC}"
 }
 

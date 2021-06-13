@@ -2,6 +2,7 @@
 #include <iostream>
 #include <assert.h>
 #include <unistd.h>
+#include "common.h"
 
 POBJ_LAYOUT_BEGIN(spmo_test);
 POBJ_LAYOUT_ROOT(spmo_test, struct root);
@@ -35,12 +36,15 @@ int main()
 		abort();
 	}
 	TX_END
-	
+
 	TX_BEGIN(pool) {
 		pmemobj_tx_free(proot->obj.oid);
+		print_pass_flag();
 		pmemobj_tx_free(proot->obj.oid); // This line should crash. Note that because libpmemobj's transactional free is delayed until commit, upstream doesn't notice this fault.
 	} TX_END
-	
+
+	print_fail_flag();
+
 	pmemobj_close(pool);
 	return 0;
 }

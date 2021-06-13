@@ -2,6 +2,7 @@
 #include <iostream>
 #include <assert.h>
 #include <unistd.h>
+#include "common.h"
 
 POBJ_LAYOUT_BEGIN(spmo_test);
 POBJ_LAYOUT_ROOT(spmo_test, struct root);
@@ -29,7 +30,9 @@ int main()
 	
 	D_RW(proot->obj)->x[0] = 1;
 	D_RW(proot->obj)->x[1] = 2;
+	print_pass_flag();
 	D_RW(proot->obj)->x[2] = 3; // This line should crash
+	print_fail_flag();
 	
 	pmemobj_close(pool);
 	return 0;
