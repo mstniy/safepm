@@ -38,13 +38,12 @@ int main()
 	
 	TX_BEGIN(pool) {
 		pmemobj_tx_free(proot->obj.oid);
+		struct dummy* pdummy = (struct dummy*)pmemobj_direct(proot->obj.oid);
+		pdummy->x = 1; // This line should crash
 	} TX_ONABORT {
-		std::cerr << "Failed to free the dummy object" << std::endl;
+		std::cerr << "You should not see this" << std::endl;
 		abort();
 	} TX_END
-	
-	struct dummy* pdummy = (struct dummy*)pmemobj_direct(proot->obj.oid);
-	pdummy->x = 1;
 	
 	pmemobj_close(pool);
 	return 0;

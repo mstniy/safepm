@@ -38,9 +38,7 @@ int main()
 	
 	TX_BEGIN(pool) {
 		pmemobj_tx_free(proot->obj.oid);
-	} TX_END
-	TX_BEGIN(pool) { // Because the transactional free is lazy, we commit the previous transaction and start a new one
-		pmemobj_tx_free(proot->obj.oid);
+		pmemobj_tx_free(proot->obj.oid); // This line should crash. Note that because libpmemobj's transactional free is delayed until commit, upstream doesn't notice this fault.
 	} TX_END
 	
 	pmemobj_close(pool);
