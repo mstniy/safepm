@@ -1,8 +1,9 @@
 set -e
 
 RED='\033[0;31m'
-NC='\033[0m' # No Color
 GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
 function print_line {
   linelen=${#1}
@@ -51,6 +52,10 @@ function should_not_crash {
   echo -e "${GREEN}$command OK.${NC}"
 }
 
+function pending_should_crash {
+  echo -e "${BLUE}$2 pending.${NC}"
+}
+
 cd "$(dirname "$0")"
 mkdir -p build
 cd build
@@ -71,4 +76,5 @@ should_crash "\[fa\]" ./root_underflow.exe
 should_crash "\[04\]" ./int32.exe
 should_crash "\[fd\]" ./alloc_tx_abort.exe
 should_not_crash ./free_tx_abort.exe
+pending_should_crash "00\[fb\]" ./tx_add_overflow.exe
 should_not_crash ./zalloc.exe
