@@ -59,7 +59,12 @@ function pending_should_crash {
 cd "$(dirname "$0")"
 mkdir -p build
 cd build
-cmake ..
+if [ "$NDEBUG" = "1" ]
+then
+  cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
+else
+  cmake .. -DCMAKE_BUILD_TYPE=Debug
+fi
 make
 cd tests
 

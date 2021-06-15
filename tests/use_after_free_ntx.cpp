@@ -26,7 +26,8 @@ int main()
 	PMEMoid proot_ = pmemobj_root(pool, sizeof(struct root));
 	assert(OID_IS_NULL(proot_) == false);
 	struct root* proot = (struct root*)pmemobj_direct(proot_);
-	assert(0 == POBJ_NEW(pool, &proot->obj, struct dummy, NULL, NULL));
+	if (POBJ_NEW(pool, &proot->obj, struct dummy, NULL, NULL))
+	  abort();
 	TOID(struct dummy) toid = proot->obj; // The FREE call sets proot->obj to NULL, so we create a copy here.
 	POBJ_FREE(&proot->obj);
 	print_pass_flag();

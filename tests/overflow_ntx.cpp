@@ -24,9 +24,11 @@ int main()
 	assert(pool != NULL);
 
 	PMEMoid proot_ = pmemobj_root(pool, sizeof(struct root));
-	assert(OID_IS_NULL(proot_) == false);
+	if (OID_IS_NULL(proot_))
+		abort();
 	struct root* proot = (struct root*)pmemobj_direct(proot_);
-	assert(0 == POBJ_NEW(pool, &proot->obj, struct dummy, NULL, NULL));
+	if(POBJ_NEW(pool, &proot->obj, struct dummy, NULL, NULL))
+		abort();
 	
 	D_RW(proot->obj)->x[0] = 1;
 	D_RW(proot->obj)->x[1] = 2;
