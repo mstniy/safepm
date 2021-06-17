@@ -74,6 +74,7 @@ should_crash "(Invalid free| palloc_heap_action_exec\] assertion failure)" ./dou
 should_crash "(Invalid free| palloc_heap_action_exec\] assertion failure)" ./double_free_ntx.exe
 should_crash "\[fd\]" ./use_after_free.exe
 should_crash "\[fd\]" ./use_after_free_ntx.exe
+should_crash "\[fd\]" ./use_after_realloc.exe
 should_crash "00\[fb\]" ./overflow.exe
 should_crash "00\[fb\]" ./overflow_ntx.exe
 should_crash "00\[fb\]" ./root_overflow.exe
