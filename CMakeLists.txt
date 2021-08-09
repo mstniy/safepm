@@ -39,3 +39,4 @@ set_property(TARGET libpmem PROPERTY IMPORTED_LOCATION "${PMDK_LIB_DIR}/libpmem.
 add_dependencies(libpmem pmdk)
 
 add_subdirectory(tests)
+add_subdirectory(utils)
