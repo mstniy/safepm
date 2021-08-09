@@ -78,6 +78,7 @@ should_crash "\[fd\]" ./use_after_realloc.exe
 should_crash "00\[fa\]" ./overflow.exe
 should_crash "00\[fa\]" ./overflow_ntx.exe
 should_crash "00\[fa\]" ./root_overflow.exe
+should_crash "00\[fa\]" ../../tests/overflow_persistence.sh
 should_crash "\[fa\]" ./root_underflow.exe
 should_crash "\[04\]" ./int32.exe
 should_crash "\[fd\]" ./alloc_tx_abort.exe
