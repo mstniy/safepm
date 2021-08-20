@@ -17,5 +17,5 @@ cd build
 cmake ..
 # Use bear to watch the build process.
 # cmake's CMAKE_EXPORT_COMPILE_COMMANDS is not enough, because pmdk is not a cmake project.
-bear make
+bear make -j7 PMASAN_TRACK_SPACE_USAGE=1
 mv compile_commands.json ..
