@@ -65,7 +65,7 @@ then
 else
   cmake .. -DCMAKE_BUILD_TYPE=Debug
 fi
-make
+make -j7
 cd tests
 
 set +e
