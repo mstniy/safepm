@@ -33,9 +33,11 @@ int main()
 		std::cerr << "Please set POOL_SIZE first." << std::endl;
 		return 1;
 	}
+	
+	const size_t poolSize = atoi(getenv("POOL_SIZE"));
 
-	unlink("spmo_test.pool");
-	PMEMobjpool* pool = pmemobj_create("spmo_test.pool", "spmo_test", atoi(getenv("POOL_SIZE")), 0660);
+	unlink("/dev/shm/spmo_test.pool");
+	PMEMobjpool* pool = pmemobj_create("/dev/shm/spmo_test.pool", "spmo_test", poolSize, 0660);
 	assert(pool != NULL);
 	
 	size_t lb=1;
@@ -62,6 +64,7 @@ int main()
 	}
 	
 	std::cout << "Estimated user-available area: " << lb << " bytes." << std::endl;
+	std::cout << "Total space overhead: " << ((poolSize-lb)/float(poolSize)*100) << "%" << std::endl;
 	
 	pmemobj_close(pool);
 	return 0;
