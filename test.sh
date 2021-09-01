@@ -83,5 +83,5 @@ should_crash "\[fa\]" ./root_underflow.exe
 should_crash "\[04\]" ./int32.exe
 should_crash "\[fd\]" ./alloc_tx_abort.exe
 should_not_crash ./free_tx_abort.exe
-pending_should_crash "00\[fb\]" ./tx_add_overflow.exe
+should_crash "00\[fa\]" ./tx_add_overflow.exe
 should_not_crash ./zalloc.exe
