@@ -30,6 +30,10 @@ cd ..
 
 Currently, there is only one utility program: `pool_overhead`. It gets built together with the tests. Set the environment variable `POOL_SIZE` and run it to get an estimate of the user-available area (excluding e.g. the PMDK metadata and the pmasan persistent shadow memory).
 
+### Benchmarks
+
+For various performance benchmark drivers and scripts, see the folder `benchmarks`.
+
 ### ``vscode_init.sh`
 
 Builds the repo with `bear` to enable the vscode extension `clangd` to do auto-completion, jumps etc. My experience with Intellisense has been very poor.

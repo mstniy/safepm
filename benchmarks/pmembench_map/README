@@ -1,0 +1,3 @@
+docker build -t safepm-pmembench .
+mkdir -p results
+docker run -v /mnt/pmem0/stavrakakis/kartal/:/mnt/pmem0/stavrakakis/kartal/ -v $(pwd)/results:/results -it safepm-pmembench bash run.sh
