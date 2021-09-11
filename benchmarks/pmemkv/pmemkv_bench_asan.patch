@@ -1,0 +1,13 @@
+diff --git a/Makefile b/Makefile
+index 0d934da..44cff20 100644
+--- a/Makefile
++++ b/Makefile
+@@ -4,7 +4,7 @@
+ .ONESHELL:
+ 
+ bench: CFLAGS = $(shell pkg-config --cflags libpmemkv libpmempool) -DOS_LINUX -fno-builtin-memcmp -march=native -DNDEBUG -O2 -std=c++11
+-bench: LDFLAGS = -ldl -lpthread $(shell pkg-config --libs libpmemkv libpmempool)
++bench: LDFLAGS = -ldl -lpthread $(shell pkg-config --libs libpmemkv libpmempool) -fsanitize=address
+ CPP_FILES = $(shell find . -iname "*.h" -o -iname "*.cc" -o -iname "*.cpp" -o -iname "*.hpp")
+ PYTHON_FILES = $(shell find . -iname "*.py")
+ KV_BENCH_TEST_PATH ?= /dev/shm/pmemkv

@@ -1,0 +1,14 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a2f5c7a..5bd9b21 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -221,6 +221,9 @@ if(COVERAGE)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -coverage")
+ endif()
+ 
++# Avoid using add_common_flag for `-fsanitize=address`, because for some reason the macro thinks it is not supported and disables it silently.
++set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+ add_common_flag(-Wall)
+ add_common_flag(-Wpointer-arith)
+ add_common_flag(-Wsign-compare)
