@@ -37,3 +37,8 @@ WORKDIR /ripe64
 RUN mkdir build
 RUN git apply memcheck.patch
 RUN make build/gcc_attack_gen
+
+RUN useradd kartal
+RUN mkdir vgcore_blackhole
+RUN chmod 550 vgcore_blackhole # Disable writes to keep valgrind from producing large core dumps
+RUN chown kartal:kartal vgcore_blackhole

@@ -20,7 +20,7 @@ index f02e5fd..5a805ef 100755
                # cmdline = "(echo \"touch /tmp/ripe-eval/f_xxxx\" | drmemory -no_check_uninitialized -crash_at_error -- ./build/"+compiler+"_attack_gen "+parameters_str+" >> /tmp/ripe_log 2>&1) 2> /tmp/ripe_log2"+str(i)
  
 -              cmdline = "(echo \"touch /tmp/ripe-eval/f_xxxx\" | ./build/"+compiler+"_attack_gen "+parameters_str+" >> /tmp/ripe_log 2>&1) 2> /tmp/ripe_log2"+str(i)
-+              cmdline = "(echo \"touch /tmp/ripe-eval/f_xxxx\" | valgrind --tool=memcheck --exit-on-first-error=yes --error-exitcode=1 ./build/"+compiler+"_attack_gen "+parameters_str+" >> /tmp/ripe_log 2>&1) 2> /tmp/ripe_log2"+str(i)
++              cmdline = "(cd vgcore_blackhole && echo \"touch /tmp/ripe-eval/f_xxxx\" | valgrind --tool=memcheck --exit-on-first-error=yes --error-exitcode=1 ../build/"+compiler+"_attack_gen "+parameters_str+" >> /tmp/ripe_log 2>&1) 2> /tmp/ripe_log2"+str(i)
                os.system(cmdline)
  
                log_entry = open("/tmp/ripe_log","r").read()

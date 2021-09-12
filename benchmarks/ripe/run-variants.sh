@@ -1,6 +1,6 @@
 set -e
 
-declare -a variants=("asan" "safepm" "memcheck")
+declare -a variants=( "asan" "safepm" "memcheck" )
 
 for variant in "${variants[@]}"
 do
@@ -16,5 +16,12 @@ do
   echo "--------------------------"
   echo
   echo
-  docker run -it --shm-size=2g ripe64-$variant ./ripe_tester.py both 1 gcc
+  
+  if [ "$variant" = "memcheck" ]
+  then
+    # We trick valgrind into not producing (large) core dumps by creating a read-only directory and running the tests in that. But for that to work, we must run as a non-root user in the container
+    docker run -it --shm-size=2g --user kartal ripe64-$variant ./ripe_tester.py both 1 gcc
+  else
+    docker run -it --shm-size=2g ripe64-$variant ./ripe_tester.py both 1 gcc
+  fi
 done
