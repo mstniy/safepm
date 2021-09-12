@@ -13,7 +13,7 @@ export ASAN_OPTIONS=detect_leaks=0
 # No arguments means execute all benchmarks
 if [ $# -eq 0 ]; then
     printSection "Starting all benchmarks"
-    declare -a operations=( "fill" "read" "randomreadwrite" "delete" ) #"numops" )
+    declare -a operations=( "read" "randomreadwrite" "delete" ) # "fill" "numops" )
 
     for op in "${operations[@]}"; do
         printSection $op
