@@ -1,0 +1,59 @@
+diff --git a/src/benchmarks/Makefile b/src/benchmarks/Makefile
+index 2162b9660..3d27967d6 100644
+--- a/src/benchmarks/Makefile
++++ b/src/benchmarks/Makefile
+@@ -97,8 +97,6 @@ CXXFLAGS += -Wno-invalid-offsetof
+ CXXFLAGS += -Wpointer-arith
+ CXXFLAGS += -Wunused-macros
+ CXXFLAGS += -pthread
+-CXXFLAGS += -fsanitize=address
+-LDFLAGS += -fsanitize=address
+ CXXFLAGS += -I../include
+ CXXFLAGS += -I../libpmemobj
+ CXXFLAGS += -I../common
+diff --git a/src/examples/Makefile.inc b/src/examples/Makefile.inc
+index a449f89f4..c26f6f2fa 100644
+--- a/src/examples/Makefile.inc
++++ b/src/examples/Makefile.inc
+@@ -13,11 +13,11 @@ LIBDIR = $(TOP_SRC)/debug
+ 
+ include $(TOP)/src/common.inc
+ 
+-CXXFLAGS = -std=c++11 -ggdb -Wall -Werror -fsanitize=address
++CXXFLAGS = -std=c++11 -ggdb -Wall -Werror
+ CXXFLAGS += $(GLIBC_CXXFLAGS)
+ CXXFLAGS +=  $(EXTRA_CXXFLAGS)
+-CFLAGS = -std=gnu99 -ggdb -Wall -Werror -Wmissing-prototypes -fsanitize=address $(EXTRA_CFLAGS)
+-LDFLAGS = -fsanitize=address -Wl,-rpath=$(LIBDIR) -L$(LIBDIR) $(EXTRA_LDFLAGS)
++CFLAGS = -std=gnu99 -ggdb -Wall -Werror -Wmissing-prototypes $(EXTRA_CFLAGS)
++LDFLAGS = -Wl,-rpath=$(LIBDIR) -L$(LIBDIR) $(EXTRA_LDFLAGS)
+ ifneq ($(SANITIZE),)
+ CFLAGS += -fsanitize=$(SANITIZE)
+ CXXFLAGS += -fsanitize=$(SANITIZE)
+diff --git a/src/libpmemobj/Makefile b/src/libpmemobj/Makefile
+index ccf52d213..35b486ece 100644
+--- a/src/libpmemobj/Makefile
++++ b/src/libpmemobj/Makefile
+@@ -52,6 +52,6 @@ endif
+ $(objdir)/asan_verifier.o: asan_verifier.c $(MAKEFILE_DEPS)
+ 	$(call check-cstyle, $<)
+ 	@mkdir -p $(objdir)/.deps
+-	$(CC) -MD -c -o $@ $(CFLAGS) $(INCS) -fPIC $(call coverage-path, $<) -fsanitize=address
++	$(CC) -MD -c -o $@ $(CFLAGS) $(INCS) -fPIC $(call coverage-path, $<)
+ 	$(call check-os, $@, $<)
+ 	$(create-deps)
+diff --git a/src/test/Makefile.inc b/src/test/Makefile.inc
+index 1c6369969..056d9de15 100644
+--- a/src/test/Makefile.inc
++++ b/src/test/Makefile.inc
+@@ -13,10 +13,6 @@ TOP := $(dir $(lastword $(MAKEFILE_LIST)))../..
+ 
+ include $(TOP)/src/common.inc
+ 
+-CFLAGS += -fsanitize=address
+-CXXFLAGS += -fsanitize=address
+-LDFLAGS += -fsanitize=address
+-
+ INCS += $(OS_INCS)
+ LDFLAGS += $(OS_LIBS)
+ LIBS_DIR=$(TOP)/src
