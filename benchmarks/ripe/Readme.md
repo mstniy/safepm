@@ -7,14 +7,8 @@ Patched to use ASan and the PMDK's persistent heap (instead of the volatile syst
 
 For further details, see our paper and [Hubert ROSIER's repo](https://github.com/hrosier/ripe64)
 
-## How to run (with Docker)
+## How to run
 
 ```
 $ ./run_variants.sh
-```
-
-```
-$ docker build -t ripe64_safepm .
-$ docker run -it --shm-size=2g ripe64_safepm bash 
-# ./ripe_tester.py both 3 gcc
 ```
