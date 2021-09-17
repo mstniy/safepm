@@ -11,7 +11,7 @@ index 33c998a22..097f80678 100644
  threads=1
  type = ctree,rtree,rbtree,hashmap_tx
 diff --git a/src/benchmarks/pmembench_obj_gen_safepm.cfg b/src/benchmarks/pmembench_obj_gen_safepm.cfg
-index c7b49b4f3..a2c0260c7 100644
+index 39dacf6df..39a37c36d 100644
 --- a/src/benchmarks/pmembench_obj_gen_safepm.cfg
 +++ b/src/benchmarks/pmembench_obj_gen_safepm.cfg
 @@ -3,7 +3,7 @@
@@ -19,10 +19,10 @@ index c7b49b4f3..a2c0260c7 100644
  [global]
  group = pmemobj
 -file = ./testfile.obj
-+file = /mnt/pmem0/stavrakakis/kartal/testfile.tx
++file = /mnt/pmem0/stavrakakis/kartal/testfile.obj
  ops-per-thread = 1
  
- #[obj_open_sizes_8MB]
+ [obj_open_sizes_8MB]
 diff --git a/src/benchmarks/pmembench_tx.cfg b/src/benchmarks/pmembench_tx.cfg
 index e06b30cdb..b988fa86a 100644
 --- a/src/benchmarks/pmembench_tx.cfg
@@ -37,7 +37,7 @@ index e06b30cdb..b988fa86a 100644
  ops-per-thread = 100
  
 diff --git a/src/benchmarks/pmembench_tx_safepm.cfg b/src/benchmarks/pmembench_tx_safepm.cfg
-index b60777ff7..5b432498a 100644
+index 5dfe0c9ca..2178ce9ae 100644
 --- a/src/benchmarks/pmembench_tx_safepm.cfg
 +++ b/src/benchmarks/pmembench_tx_safepm.cfg
 @@ -2,7 +2,7 @@
