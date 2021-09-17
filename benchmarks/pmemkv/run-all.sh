@@ -2,7 +2,9 @@
 # Specify the parameter before running the actual benchmark
 # The values be used in all subsequental benchmarking scripts
 PMEMKVBENCH=/pmemkv-bench
-MOUNT_PM=/dev/shm
+# Use this line to run the benchmarks on DRAM. Do not forget to also modify run-variants.sh
+#MOUNT_PM=/dev/shm
+MOUNT_PM=/mnt/pmem0/stavrakakis/kartal
 RESULT_PATH=/results
 
 printSection (){

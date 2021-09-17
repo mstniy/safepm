@@ -12,5 +12,7 @@ mkdir -p results
 for variant in "${variants[@]}"
 do
   mkdir results/${variant}
-  docker run -v $(pwd)/results/${variant}:/results -it --shm-size=2g pmemkv-bench-$variant ./run-all.sh
+  # Use this line to run the bencharks on DRAM. Do not forget to modify the variable MOUNT_PM in run-all.sh accordingly.
+  #docker run -v $(pwd)/results/${variant}:/results -it --shm-size=2g pmemkv-bench-$variant ./run-all.sh
+  docker run -v /mnt/pmem0/stavrakakis/kartal:/mnt/pmem0/stavrakakis/kartal -v $(pwd)/results/${variant}:/results -t --shm-size=2g pmemkv-bench-$variant ./run-all.sh
 done
