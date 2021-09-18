@@ -34,6 +34,10 @@ Currently, there is only one utility program: `pool_overhead`. It gets built tog
 
 For various performance benchmark drivers and scripts, see the folder `benchmarks`.
 
+### Plotters
+
+Scripts used for creating the plots in the paper.
+
 ### ``vscode_init.sh`
 
 Builds the repo with `bear` to enable the vscode extension `clangd` to do auto-completion, jumps etc. My experience with Intellisense has been very poor.
