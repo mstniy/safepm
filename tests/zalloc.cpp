@@ -32,7 +32,27 @@ int main()
 		TX_BEGIN(pool) {
 			TX_FREE(ptr);
 		} TX_ONABORT {
-			std::cerr << "Faild to free the dummy object" << std::endl;
+			std::cerr << "Failed to free the dummy object" << std::endl;
+			abort();
+		}
+		TX_END
+	
+	}
+	
+	for (int i=0; i<1300; i++) {
+
+		TX_BEGIN(pool) {
+			ptr = pmemobj_tx_xalloc(sizeof(struct dummy), TOID_TYPE_NUM(struct dummy), POBJ_XALLOC_ZERO);
+		} TX_ONABORT {
+			std::cerr << "Faild to allocate a dummy object" << std::endl;
+			abort();
+		}
+		TX_END
+		
+		TX_BEGIN(pool) {
+			TX_FREE(ptr);
+		} TX_ONABORT {
+			std::cerr << "Failed to free the dummy object" << std::endl;
 			abort();
 		}
 		TX_END
