@@ -1,5 +1,5 @@
 - results:
-    folder: /home/kartal/Desktop/dersler/tum_gr/dimitris_plotter
+    folder: .
     lib_versions:
       pmdk:
         - pmemkv
@@ -21,4 +21,4 @@
     x_axis: Threads
     variants:
       - Entries
-    plot_folder: /home/kartal/Desktop/dersler/tum_gr/dimitris_plotter/plots
+    plot_folder: plots/pmemkv

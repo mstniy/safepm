@@ -1,5 +1,5 @@
 - results:
-    folder: /home/kartal/Desktop/dersler/tum_gr/dimitris_plotter
+    folder: .
     lib_versions:
       pmdk:
         - pmembench_map
@@ -20,4 +20,4 @@
     x_axis: type
     variants:
       - ops-per-thread
-    plot_folder: /home/kartal/Desktop/dersler/tum_gr/dimitris_plotter/plots
+    plot_folder: plots/pmembench_map

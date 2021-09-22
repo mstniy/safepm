@@ -12,6 +12,7 @@ fi
 for (( i=0; i<${#variants_plotter[@]}; i++))
 do
   variant_plotter="${variants_plotter[i]}"
+  mkdir -p "$variant_plotter"
   variant_results="${variants_results[i]}"
   if [ -e ${variant_plotter}/pmemkv_result ]
   then
