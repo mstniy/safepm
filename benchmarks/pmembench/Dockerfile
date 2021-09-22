@@ -36,6 +36,11 @@ RUN git clone https://github.com/mstniy/pmdk.git /pmdk_safepm -b pmasan-1.9.2
 WORKDIR /pmdk_safepm
 RUN make -j7
 
+WORKDIR /
+RUN git clone https://github.com/mstniy/pmdk.git /pmdk_safepm_partial_coverage -b pmasan-1.9.2-partial_coverage
+WORKDIR /pmdk_safepm_partial_coverage
+RUN make -j7
+
 RUN git clone https://github.com/mstniy/pmdk.git /pmdk_wrappers_only -b pmasan-1.9.2
 WORKDIR /safepm-bench-scripts
 COPY pmdk_remove_asan.patch .
@@ -54,12 +59,16 @@ RUN make -j7
 COPY . /safepm-bench-scripts
 WORKDIR /pmdk_safepm
 RUN git apply /safepm-bench-scripts/pmembench.patch
+WORKDIR /pmdk_safepm_partial_coverage
+RUN git apply /safepm-bench-scripts/pmembench.patch
+RUN git apply /safepm-bench-scripts/pmembench_partial_cov.patch
 WORKDIR /pmdk_wrappers_only
 RUN git apply /safepm-bench-scripts/pmembench.patch
 WORKDIR /pmdk_asan_only
 RUN git apply /safepm-bench-scripts/pmembench.patch
 WORKDIR /pmdk_vanilla
 RUN git apply /safepm-bench-scripts/pmembench.patch
+RUN git apply /safepm-bench-scripts/pmembench_partial_cov.patch
 WORKDIR /safepm-bench-scripts
 
 

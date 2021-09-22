@@ -1,0 +1,12 @@
+diff --git a/src/benchmarks/pmembench_map_partial_cov.cfg b/src/benchmarks/pmembench_map_partial_cov.cfg
+index eb9cd1c8f..d94fbca78 100644
+--- a/src/benchmarks/pmembench_map_partial_cov.cfg
++++ b/src/benchmarks/pmembench_map_partial_cov.cfg
+@@ -1,6 +1,6 @@
+ [global]
+ group = pmemobj
+-file = /dev/shm/testfile.map
++file = /mnt/pmem0/stavrakakis/kartal/testfile.map
+ ops-per-thread=1000000
+ threads=1
+ type = hashmap_tx
