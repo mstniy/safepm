@@ -35,9 +35,6 @@ WORKDIR /
 RUN git clone https://github.com/mstniy/pmdk.git /pmdk
 WORKDIR /pmdk
 RUN git checkout pmasan-1.9.2
-# pmemkv does intra-transaction double-frees, so disable the check
-COPY pmasan.patch /pmemkv-bench-scripts/
-RUN git apply /pmemkv-bench-scripts/pmasan.patch
 RUN make -j7
 RUN make -j7 install
 
