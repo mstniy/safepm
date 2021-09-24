@@ -10,7 +10,7 @@ from plot import plot
 #If config file is not given return message with the usage
 def input_check() -> None:
     if (len(sys.argv) < 2):
-        print("Usage: python3 run_experiments.py /path/to/config_file.yml")
+        print("Usage: python3 generate_plots.py /path/to/config_file.yml")
         exit()
     else:
         return sys.argv[1]

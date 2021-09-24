@@ -1,0 +1,37 @@
+- results:
+    folder: .
+    lib_versions:
+      pmdk:
+        - pmembench_tx
+      wrappers_only:
+        - pmembench_tx
+      asan:
+        - pmembench_tx
+      safepm:
+        - pmembench_tx
+
+- plot:
+    plot_type: bar
+    overhead_annot: false
+    benchmarks:
+      - obj_atomic_alloc
+      - obj_atomic_free
+      - obj_tx_alloc
+      - obj_tx_free
+    y_axis: ops-per-second[1/sec]
+    x_axis: data-size
+    variants:
+      - ops-per-thread
+    plot_folder: plots/pmembench_tx
+
+- plot:
+    plot_type: bar
+    overhead_annot: false
+    benchmarks:
+      - obj_atomic_realloc
+      - obj_tx_realloc
+    y_axis: ops-per-second[1/sec]
+    x_axis: realloc-size
+    variants:
+      - ops-per-thread
+    plot_folder: plots/pmembench_tx

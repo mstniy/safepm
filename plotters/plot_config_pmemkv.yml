@@ -10,6 +10,7 @@
 
 - plot:
     plot_type: bar
+    overhead_annot: false
     benchmarks:
       - delete_random
       - delete_seq
