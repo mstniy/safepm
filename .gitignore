@@ -3,3 +3,5 @@ build/
 .cache/
 compile_commands.json
 spmo_test.pool
+__pycache__
+results*
