@@ -1,0 +1,20 @@
+- results:
+    folder: .
+    lib_versions:
+      pmdk:
+        - pmembench_map_partial_cov
+      safepm:
+        - pmembench_map_partial_cov
+
+- plot:
+    plot_type: bar
+    overhead_annot: false
+    benchmarks:
+      - map_insert_partial_cov
+      - map_remove_partial_cov
+      - map_get_partial_cov
+    y_axis: ops-per-second[1/sec]
+    x_axis: probability
+    variants:
+      - type
+    plot_folder: plots/pmembench_map_partial_cov

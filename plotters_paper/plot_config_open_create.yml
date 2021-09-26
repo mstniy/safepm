@@ -1,0 +1,23 @@
+- results:
+    folder: .
+    lib_versions:
+      pmdk:
+        - pmembench_open_create
+      wrappers_only:
+        - pmembench_open_create
+      asan:
+        - pmembench_open_create
+      safepm:
+        - pmembench_open_create
+
+- plot:
+    plot_type: pmembench_open_create
+    overhead_annot: false #not used
+    benchmarks:
+      - obj_open_sizes_256MB_64GB
+      - obj_create_sizes_256MB_64GB
+    y_axis: ops-per-second[1/sec]
+    x_axis: objects
+    variants:
+      - ops-per-thread
+    plot_folder: plots/pmembench_open_create

@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from analyse import metrics, bench_info
-from plotters import bar_plot, bar_overhead_plot
+from plotters import pmembench_tx_plot_single, pmembench_tx_plot_dual, pmembench_open_create_plot, pmembench_map_plot, pmembench_map_partial_cov_plot, pmemkv_plot
 
 def plot(plot_config, x_values, y_values, info):
     plot_type = plot_config['plot']['plot_type']
@@ -11,10 +11,21 @@ def plot(plot_config, x_values, y_values, info):
     y_axis_label = plot_config['plot']['y_axis']
     overhead_annot = plot_config['plot']['overhead_annot']
 
-    if plot_type=="bar":
-        plot_fun = bar_plot
-    elif plot_type=="overhead":
-        plot_fun = bar_overhead_plot
+    if plot_type=="pmembench_tx_single":
+        plot_fun = pmembench_tx_plot_single
+    elif plot_type=="pmembench_tx_dual":
+        plot_fun = pmembench_tx_plot_dual
+    elif plot_type=="pmembench_open_create":
+        plot_fun = pmembench_open_create_plot
+    elif plot_type=="pmembench_map":
+        plot_fun = pmembench_map_plot
+    elif plot_type=="pmembench_map_partial_cov":
+        plot_fun = pmembench_map_partial_cov_plot
+    elif plot_type=="pmemkv":
+        plot_fun = pmemkv_plot
+    else:
+        print("invalid plot type")
+        exit()
 
     plot_x = {}
     plot_y = {}

@@ -9,11 +9,11 @@
         - pmemkv
 
 - plot:
-    plot_type: bar
-    overhead_annot: false
+    plot_type: pmemkv
+    overhead_annot: false #not used
     benchmarks:
-      - delete_random
-      - delete_seq
+      #- delete_random
+      #- delete_seq
       - randomreadwrite50
       - randomreadwrite95
       - read_random
