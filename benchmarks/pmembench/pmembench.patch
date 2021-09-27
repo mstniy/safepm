@@ -22,7 +22,7 @@ index 39dacf6df..39a37c36d 100644
 +file = /mnt/pmem0/stavrakakis/kartal/testfile.obj
  ops-per-thread = 1
  
- [obj_open_sizes_8MB]
+ #[obj_open_sizes_8MB]
 diff --git a/src/benchmarks/pmembench_tx.cfg b/src/benchmarks/pmembench_tx.cfg
 index e06b30cdb..b988fa86a 100644
 --- a/src/benchmarks/pmembench_tx.cfg
