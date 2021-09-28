@@ -6,7 +6,7 @@ from analyse import metrics,bench_info
 versions_map = {
     "pmdk"                  :   "PMDK",    
     "asan"                  :   "ASan",
-    "wrappers_only"         :   "SafePM wo/ Asan",
+    "wrappers_only"         :   "SafePM w/o Asan",
     "safepm"                :   "SafePM"
 }
 
@@ -160,7 +160,25 @@ def pmembench_tx_plot_dual(x_values, y_values, info, x_axis_label, y_axis_label,
                                         color = colour_local[plot_idx],
                                         edgecolor = 'black', align='center', label=pmembench_tx[benchmark])
                     plot_idx = plot_idx + 1
-            
+                    if overhead_annot:
+                        if (version_lib == "pmdk"):
+                            reference = [float(i) for i in y_values[benchmark][variant][version_lib]]
+                        else: 
+                            if 'reference' in vars(): #if pmdk reference is defined
+                                bar_values = [float(item) for item in y_values[benchmark][variant][version_lib]]
+                                for j in range(len(rect)):
+                                    #print(version_lib)
+                                    #print(bar_values)
+                                    percentage_change = reference[j] / bar_values[j]
+                                    height = rect[j].get_height()
+                                    width = rect[j].get_width()
+                                    #print(rect[j].get_x() + width, rect[j].get_y())
+                                    if (percentage_change != 1):
+                                        ax.annotate('{:.2f}x'.format(percentage_change),
+                                            xy=(rect[j].get_x() + width, rect[j].get_y() - height),
+                                            xytext=(8, 3),  # 3 points vertical offset
+                                            textcoords="offset points",
+                                            ha='center', va='bottom', size=4)
             #configure the look of the plot
             plt.yticks(range(0,len(x_values[benchmark][variant][version_lib])), x_values[benchmark][variant][version_lib])
             
@@ -195,6 +213,7 @@ def pmembench_tx_plot_dual(x_values, y_values, info, x_axis_label, y_axis_label,
     return
 
 def pmembench_open_create_plot(x_values, y_values, info, x_axis_label, y_axis_label, overhead_annot, plot_folder):
+    
     print("pmembench_open_create_plot")
     fig1, ax1 = plt.subplots(1, 2)
     ax_idx1 = 0
@@ -249,10 +268,137 @@ def pmembench_open_create_plot(x_values, y_values, info, x_axis_label, y_axis_la
                                     ncol=len(labels) , borderaxespad=0.) 
             
             ax_idx1 = ax_idx1 + 1         
+    
+    fig1.text(0.5, -0.025, 'Pool size', ha='center', fontsize=10)
     #save the plot
     plot_dir = plot_folder
     #plot_file_path = plot_folder + "/" + benchmark
     plot_file_path = plot_folder + "/" + "pmembench_open_create_plot"
+    fig1.set_size_inches(12, 2)
+    save_plot(plot_dir, plot_file_path, fig1, lgd1)
+    plt.close(fig1)       
+    return
+
+def pmembench_open_create_plot_time(x_values, y_values, info, x_axis_label, y_axis_label, overhead_annot, plot_folder):
+    
+    print("pmembench_open_create_plot_time")
+    fig1, ax1 = plt.subplots(1, 2)
+    ax_idx1 = 0
+    for benchmark in x_values:
+        plot_title = benchmark
+        for variant in x_values[benchmark]:
+            ax = ax1[ax_idx1]
+            experiment_params = variant.split('+')[1:]
+            number_of_bars = len(x_values[benchmark][variant])
+            bar_area_percentage = number_of_bars * 0.2 #0.8
+            w = float(bar_area_percentage / number_of_bars) #bar width to cover 80% of the dedicated space
+            x_axis_spacing = np.linspace(-bar_area_percentage/2 + w/2, bar_area_percentage/2 - w/2, num=number_of_bars)
+
+            #append values to the plot
+            for version_lib in x_values[benchmark][variant]:     
+                internal_idx = list(x_values[benchmark][variant].keys()).index(version_lib)
+                x_index = np.arange(0, len(x_values[benchmark][variant][version_lib]), 1) + x_axis_spacing[internal_idx]
+                rect = ax.bar(x_index, [float(i) for i in y_values[benchmark][variant][version_lib]], width = w, 
+                                    color = colour[internal_idx], hatch = hatch[internal_idx],
+                                    edgecolor = 'black', align='center', label=version_lib)
+
+            #configure the look of the plot
+            plt.xticks(range(0,len(x_values[benchmark][variant][version_lib])), x_values[benchmark][variant][version_lib])
+            ax.xaxis.set_ticks(range(0,len(x_values[benchmark][variant][version_lib])))
+            
+            x_labels = x_values[benchmark][variant][version_lib]
+            #convert objects to bytes
+            #the pool size is 4 * data_size (1MB) * obj_number
+            x_labels = map(lambda x: (int(x) * 4), x_labels)
+            x_labels = [str(x) + " MB" if int(x) < 1024 else str(int(int(x)/1024)) + " GB" for x in x_labels]
+            ax.xaxis.set_ticklabels(x_labels)
+
+            for tick in ax.xaxis.get_major_ticks():
+                tick.label.set_fontsize(8)
+            for tick in ax.yaxis.get_major_ticks():
+                tick.label.set_fontsize(8)
+            
+            ax.set_title(pmembench_open_create[plot_title], fontsize=10)
+            handles, labels = ax.get_legend_handles_labels()
+            labels = [versions_map[label] for label in labels]
+            
+            if (ax_idx1 == 0):
+                ax.set_ylabel("Average time (s)", fontsize=10)
+            elif (ax_idx1 == 1):
+                lgd1 = ax.legend(handles, labels, loc='upper center', #bbox_to_anchor=(0.5,-0.12),
+                                    bbox_to_anchor=(-0.6, 1.22, 1., .102), #loc='lower left',
+                                    ncol=len(labels) , borderaxespad=0.) 
+            
+            ax_idx1 = ax_idx1 + 1         
+    
+    fig1.text(0.5, -0.025, 'Pool size', ha='center', fontsize=10)
+    #save the plot
+    plot_dir = plot_folder
+    #plot_file_path = plot_folder + "/" + benchmark
+    plot_file_path = plot_folder + "/" + "pmembench_open_create_plot_time"
+    fig1.set_size_inches(12, 2)
+    save_plot(plot_dir, plot_file_path, fig1, lgd1)
+    plt.close(fig1)       
+    return
+
+def pmembench_open_create_plot_time_log(x_values, y_values, info, x_axis_label, y_axis_label, overhead_annot, plot_folder):
+    
+    print("pmembench_open_create_plot_time")
+    fig1, ax1 = plt.subplots(1, 2)
+    ax_idx1 = 0
+    for benchmark in x_values:
+        plot_title = benchmark
+        for variant in x_values[benchmark]:
+            ax = ax1[ax_idx1]
+            experiment_params = variant.split('+')[1:]
+            number_of_bars = len(x_values[benchmark][variant])
+            bar_area_percentage = number_of_bars * 0.2 #0.8
+            w = float(bar_area_percentage / number_of_bars) #bar width to cover 80% of the dedicated space
+            x_axis_spacing = np.linspace(-bar_area_percentage/2 + w/2, bar_area_percentage/2 - w/2, num=number_of_bars)
+
+            #append values to the plot
+            for version_lib in x_values[benchmark][variant]:     
+                internal_idx = list(x_values[benchmark][variant].keys()).index(version_lib)
+                x_index = np.arange(0, len(x_values[benchmark][variant][version_lib]), 1) + x_axis_spacing[internal_idx]
+                rect = ax.bar(x_index, [float(i) for i in y_values[benchmark][variant][version_lib]], width = w, 
+                                    color = colour[internal_idx], hatch = hatch[internal_idx],
+                                    edgecolor = 'black', align='center', label=version_lib)
+
+            #configure the look of the plot
+            plt.xticks(range(0,len(x_values[benchmark][variant][version_lib])), x_values[benchmark][variant][version_lib])
+            ax.xaxis.set_ticks(range(0,len(x_values[benchmark][variant][version_lib])))
+            
+            x_labels = x_values[benchmark][variant][version_lib]
+            #convert objects to bytes
+            #the pool size is 4 * data_size (1MB) * obj_number
+            x_labels = map(lambda x: (int(x) * 4), x_labels)
+            x_labels = [str(x) + " MB" if int(x) < 1024 else str(int(int(x)/1024)) + " GB" for x in x_labels]
+            ax.xaxis.set_ticklabels(x_labels)
+
+            for tick in ax.xaxis.get_major_ticks():
+                tick.label.set_fontsize(8)
+            for tick in ax.yaxis.get_major_ticks():
+                tick.label.set_fontsize(8)
+            
+            ax.set_title(pmembench_open_create[plot_title], fontsize=10)
+            handles, labels = ax.get_legend_handles_labels()
+            labels = [versions_map[label] for label in labels]
+            
+            if (ax_idx1 == 0):
+                ax.set_ylabel("Average time (s)", fontsize=10)
+            elif (ax_idx1 == 1):
+                ax.set_yscale('log')
+                lgd1 = ax.legend(handles, labels, loc='upper center', #bbox_to_anchor=(0.5,-0.12),
+                                    bbox_to_anchor=(-0.6, 1.22, 1., .102), #loc='lower left',
+                                    ncol=len(labels) , borderaxespad=0.) 
+            
+            ax_idx1 = ax_idx1 + 1         
+    
+    fig1.text(0.5, -0.025, 'Pool size', ha='center', fontsize=10)
+    #save the plot
+    plot_dir = plot_folder
+    #plot_file_path = plot_folder + "/" + benchmark
+    plot_file_path = plot_folder + "/" + "pmembench_open_create_plot_time_log"
     fig1.set_size_inches(12, 2)
     save_plot(plot_dir, plot_file_path, fig1, lgd1)
     plt.close(fig1)       

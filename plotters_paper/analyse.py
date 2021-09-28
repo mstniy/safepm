@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 #y axis metrics to consider
 metrics = {
-        #"exec_time"     :   "total-avg[sec]",    
+        "exec_time"     :   "total-avg[sec]",    
         #"latency-avg"   :   "latency-avg[nsec]",
         "throughput"    :   "ops-per-second[1/sec]"
     }

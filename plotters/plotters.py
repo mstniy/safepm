@@ -111,6 +111,7 @@ def bar_overhead_plot(x_values, y_values, info, x_axis_label, y_axis_label, over
                     internal_idx = (list(x_values[benchmark][variant].keys()).index(version_lib))-1
                     x_index = np.arange(0, len(x_values[benchmark][variant][version_lib]), 1) + x_axis_spacing[internal_idx]
                     lib_values = [float(i) for i in y_values[benchmark][variant][version_lib]]
+                    values_to_plot = [x/y for x, y in zip(reference, lib_values)]
                     rect = ax.bar(x_index, values_to_plot, width = w, 
                                         color = colour[internal_idx], hatch = hatch[internal_idx], 
                                         edgecolor = 'black', align='center', label=version_lib)

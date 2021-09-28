@@ -2,7 +2,9 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from analyse import metrics, bench_info
-from plotters import pmembench_tx_plot_single, pmembench_tx_plot_dual, pmembench_open_create_plot, pmembench_map_plot, pmembench_map_partial_cov_plot, pmemkv_plot
+from plotters import pmembench_tx_plot_single, pmembench_tx_plot_dual, pmembench_open_create_plot,\
+                    pmembench_open_create_plot_time, pmembench_open_create_plot_time_log,pmembench_map_plot,\
+                    pmembench_map_partial_cov_plot, pmemkv_plot
 
 def plot(plot_config, x_values, y_values, info):
     plot_type = plot_config['plot']['plot_type']
@@ -17,6 +19,10 @@ def plot(plot_config, x_values, y_values, info):
         plot_fun = pmembench_tx_plot_dual
     elif plot_type=="pmembench_open_create":
         plot_fun = pmembench_open_create_plot
+    elif plot_type=="pmembench_open_create_time":
+        plot_fun = pmembench_open_create_plot_time
+    elif plot_type=="pmembench_open_create_time_log":
+        plot_fun = pmembench_open_create_plot_time_log
     elif plot_type=="pmembench_map":
         plot_fun = pmembench_map_plot
     elif plot_type=="pmembench_map_partial_cov":
