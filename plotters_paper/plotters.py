@@ -1,5 +1,6 @@
 import os
 import numpy as np
+from matplotlib.ticker import ScalarFormatter
 import matplotlib.pyplot as plt
 from analyse import metrics,bench_info
 
@@ -387,7 +388,9 @@ def pmembench_open_create_plot_time_log(x_values, y_values, info, x_axis_label, 
             if (ax_idx1 == 0):
                 ax.set_ylabel("Average time (s)", fontsize=10)
             elif (ax_idx1 == 1):
+                ax.set_ylabel("Average time (log(s))", fontsize=10)
                 ax.set_yscale('log')
+                ax.yaxis.set_major_formatter(ScalarFormatter())
                 lgd1 = ax.legend(handles, labels, loc='upper center', #bbox_to_anchor=(0.5,-0.12),
                                     bbox_to_anchor=(-0.6, 1.22, 1., .102), #loc='lower left',
                                     ncol=len(labels) , borderaxespad=0.) 
