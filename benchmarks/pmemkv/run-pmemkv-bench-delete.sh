@@ -14,6 +14,7 @@ mkdir -p $RESULT_PATH
 # Execute the benchmarks
 ##### Different Threads #####
 declare -a benchmarks=(deleteseq deleterandom)
+declare -a num_threads=(1 2 4 8 16 24)
 for bench in "${benchmarks[@]}"; do
     declare -a files=( )
     # Run multiple times the same test
@@ -22,7 +23,7 @@ for bench in "${benchmarks[@]}"; do
         create_file=true
         # Execute the actual benchmark operation for different values
         # Delete after each run with one value
-        for (( threads=1; threads<=4; threads=threads*2 )); do
+        for threads in "${num_threads[@]}"; do
             echo "Running $bench for threads $threads"
             if [ $create_file = true ]; then
                 # Use sed to skip the line with the values for fillseq

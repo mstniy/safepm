@@ -14,6 +14,7 @@ mkdir -p $RESULT_PATH
 ##### Different threads #####
 # Run test for 50%, and 95% reads
 declare -a readpercentages=(50 95)
+declare -a num_threads=(1 2 4 8 16 24)
 for readpercentage in "${readpercentages[@]}"; do
     declare -a files=( )
     bench=readrandomwriterandom
@@ -27,7 +28,7 @@ for readpercentage in "${readpercentages[@]}"; do
         create_file=true
         # Execute the actual benchmark operation for different values
         # Delete after each run with one value
-        for (( threads=1; threads<=4; threads=threads*2 )); do
+        for threads in "${num_threads[@]}"; do
             echo "Running $bench for threads $threads"
             if [ $create_file = true ]; then
                 # Use sed to skip the line with the values for fillseq
