@@ -42,10 +42,8 @@ WORKDIR /pmdk_safepm_partial_coverage
 RUN make -j7
 
 RUN git clone https://github.com/mstniy/pmdk.git /pmdk_wrappers_only -b pmasan-1.9.2
-WORKDIR /safepm-bench-scripts
-COPY pmdk_remove_asan.patch .
 WORKDIR /pmdk_wrappers_only
-RUN git apply /safepm-bench-scripts/pmdk_remove_asan.patch
+RUN git apply disable_asan.patch
 RUN make -j7
 
 RUN git clone https://github.com/mstniy/pmdk.git /pmdk_asan_only -b asan_only-1.9.2
