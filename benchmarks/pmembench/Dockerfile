@@ -55,18 +55,16 @@ WORKDIR /pmdk_vanilla
 RUN make -j7
 
 COPY . /safepm-bench-scripts
-WORKDIR /pmdk_safepm
-RUN git apply /safepm-bench-scripts/pmembench.patch
-WORKDIR /pmdk_safepm_partial_coverage
-RUN git apply /safepm-bench-scripts/pmembench.patch
-RUN git apply /safepm-bench-scripts/pmembench_partial_cov.patch
-WORKDIR /pmdk_wrappers_only
-RUN git apply /safepm-bench-scripts/pmembench.patch
-WORKDIR /pmdk_asan_only
-RUN git apply /safepm-bench-scripts/pmembench.patch
-WORKDIR /pmdk_vanilla
-RUN git apply /safepm-bench-scripts/pmembench.patch
-RUN git apply /safepm-bench-scripts/pmembench_partial_cov.patch
+WORKDIR /pmdk_safepm/src/benchmarks
+RUN /safepm-bench-scripts/change_pmembench_file_path.sh
+WORKDIR /pmdk_safepm_partial_coverage/src/benchmarks
+RUN /safepm-bench-scripts/change_pmembench_file_path.sh
+WORKDIR /pmdk_wrappers_only/src/benchmarks
+RUN /safepm-bench-scripts/change_pmembench_file_path.sh
+WORKDIR /pmdk_asan_only/src/benchmarks
+RUN /safepm-bench-scripts/change_pmembench_file_path.sh
+WORKDIR /pmdk_vanilla/src/benchmarks
+RUN /safepm-bench-scripts/change_pmembench_file_path.sh
 WORKDIR /safepm-bench-scripts
 
 

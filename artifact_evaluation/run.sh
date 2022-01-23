@@ -1,17 +1,20 @@
 #!/bin/bash
 set -e
 
+if [ "$#" -ne 1 ]
+then
+    echo "Usage: run.sh <path to pm>" >&2
+    exit 1
+fi
+
+
 cd "$(dirname "$0")"
+export BENCHMARK_PM_PATH="$1"
 
 ########## PMEMBENCH ##########
 
 cd ../benchmarks/pmembench
-docker build -t safepm-pmembench .
-mkdir -p results/pmembench_map
-mkdir -p results/pmembench_tx
-mkdir -p results/pmembench_open_create
-mkdir -p results/pmembench_map_partial_cov
-docker run -v /mnt/pmem0/stavrakakis/kartal/:/mnt/pmem0/stavrakakis/kartal/ -v $(pwd)/results:/results -it safepm-pmembench bash run.sh
+./run-variants.sh
 
 ########## PMEMKV ##########
 

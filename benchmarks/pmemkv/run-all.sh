@@ -4,7 +4,7 @@
 PMEMKVBENCH=/pmemkv-bench
 # Use this line to run the benchmarks on DRAM. Do not forget to also modify run-variants.sh
 #MOUNT_PM=/dev/shm
-MOUNT_PM=/mnt/pmem0/stavrakakis/kartal
+MOUNT_PM=/mnt/pmemkv
 RESULT_PATH=/results
 
 printSection (){
