@@ -8,15 +8,12 @@ git clone git@github.com:mstniy/safepm.git
 ### Benchmarks run
 
 For convience we created an evaluation script (run.sh) that will first build SafePM and then run all evaluation experiments from the paper.
-It get as input a `path-to-pm` which should be a file system directory that is mounted with the `dax` mount option ([hint](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/storage_administration_guide/configuring-persistent-memory-for-file-system-direct-access-dax)).
+It gets as input a `path-to-pm` which should be a file system directory that is mounted with the `dax` mount option ([hint](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/storage_administration_guide/configuring-persistent-memory-for-file-system-direct-access-dax)).
+Usage:
 ``` 
 ./run.sh <path-to-pm>
 ```
-For example :
-```
-./run.sh /mnt/pmem0/dir_name
-```
-This is the path where benchmarks will create the persistent memory pools.
+`path-to-pm` is the directory where benchmarks will create the persistent memory pools.
 
 ### Figures
 
@@ -24,7 +21,7 @@ After the benchmark run is over and you have collected all the results you can r
 ```
 ./figure_x.sh
 ```
-This script will create a `plots` directory and will place the respective plot there both in .png and in .pdf format.
+This script will create a `plots` directory and will place the respective plot there, both in .png and in .pdf format.
 
 To obtain all the plots, we provide the `safepm_figures.sh`. 
 Simply run:
