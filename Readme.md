@@ -1,5 +1,13 @@
 # SafePM: Memory Safety for Persistent Memory
 
+Memory safety violation is a major root cause of reliability and security issues in software systems. Byte-addressable persistent memory (PM), just like its volatile counterpart, is also susceptible to memory safety violations, e.g., object overflows and use-after-free bugs. While there is a couple of decades of work in ensuring memory safety for programs based on volatile memory, there exists no memory safety mechanism for PM — the existing approaches are incompatible since the PM programming model introduces a persistent pointer representation for persistent memory objects and allocators, where it is imperative to design a crash consistent safety mechanism. We introduce SafePM, a memory safety mechanism that transparently and comprehensively detects both spatial and temporal memory safety violations for PM-based applications. SafePM’s design builds on a shadow memory approach, and augments it with crash consistent data structures and system operations to ensure memory safety even across system reboots and crashes. We implement SafePM based on the [AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html) compiler pass, and integrate it with the PM development kit ([PMDK](https://github.com/pmem/pmdk)) runtime library. We evaluate SafePM across three dimensions: overheads, effectiveness, and crash consistency. SafePM overall incurs reasonable overheads while providing comprehensive memory safety, and has uncovered real-world bugs in the widely-used PMDK library.
+
+## Artifact evaluation
+
+SafePM was published in Eurosys 2022.
+The artifact evaluation folder contains the required scripts to reproduce the results and the figures from our Paper.
+For more information please look at our [Artifact Evaluation folder](https://github.com/mstniy/safepm/tree/master/artifact_evaluation).
+
 ### Installation
 
 Initially clone the repository:
@@ -55,8 +63,3 @@ Scripts used for creating the plots in the paper.
 ### ``vscode_init.sh`
 
 Builds the repo with `bear` to enable the vscode extension `clangd` to do auto-completion, jumps etc. My experience with Intellisense has been very poor.
-
-### Artifact evaluation
-
-This folder contains the scripts required to reproduce the results and the figures from our Paper.
-For more information please look at our [Artifact Evaluation folder](https://github.com/mstniy/safepm/tree/master/artifact_evaluation).
