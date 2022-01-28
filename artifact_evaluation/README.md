@@ -1,12 +1,17 @@
 # Artifact evaluation
 
+The first step is to get the source code for SafePM:
+```
+git clone git@github.com:mstniy/safepm.git
+```
+
 ### Benchmarks run
 
-To run the experiments and gather the results, please run:
+For convience we created an evaluation script (run.sh) that will first build SafePM and then run all evaluation experiments from the paper.
+It get as input a `path-to-pm` which should be a file system directory that is mounted with the `dax` mount option ([hint](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/storage_administration_guide/configuring-persistent-memory-for-file-system-direct-access-dax)).
 ``` 
 ./run.sh <path-to-pm>
 ```
-where `path-to-pm` is a file system directory that is mounted with the `dax` mount option ([hint](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/storage_administration_guide/configuring-persistent-memory-for-file-system-direct-access-dax)).
 For example :
 ```
 ./run.sh /mnt/pmem0/dir_name
@@ -26,3 +31,13 @@ Simply run:
 ```
 ./safepm_figures.sh
 ```
+
+### Hardware configuration
+
+The machine we use for our evaluation has the following hardware configuration:
+
+TODO
+
+### Software dependecies
+
+TODO
