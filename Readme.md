@@ -1,15 +1,30 @@
-Repository of the SafePM project.
+# SafePM: Memory Safety for Persistent Memory
 
-Includes the SafePM's PMDK fork as a submodule, so make sure you initialize it first:  
+### Installation
+
+Initially clone the repository:
+```
+git clone git@github.com:mstniy/safepm.git
+```
+
+This repository includes the SafePM's PMDK fork as a submodule, so make sure you initialize it first:  
 ```
 git submodule update --init
 ```
 
+By default, the submodule contains the wrappers of SafePM and includes the ASan flags for the compilation of the test applications (persistent indices and benchmarks) shipped with pmdk. 
 It is recommended that you uninstall `libpmem`/`libpmemobj`, in case it conflicts with the one this repo builds from source.
+The dependencies of SafePM are the same with those of [PMDK](https://github.com/pmem/pmdk#dependencies).
+To install the modified SafePM's libpmemobj library system-wide:
+```
+cd pmdk
+make
+make install
+```
 
 ### Tests
 
-The tests make sure pmasan provides ASan-level protection even for memory violations that happen within the PMDK-controlled persistent heap. To run the tests, use:  
+The tests make sure SafePM provides ASan-level protection even for memory violations that happen within the PMDK-controlled persistent heap. To run the tests, use:  
 ```
 ./test.sh
 ```
