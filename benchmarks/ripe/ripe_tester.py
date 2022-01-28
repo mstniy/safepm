@@ -49,6 +49,8 @@ print_OK = True
 print_SOME = True
 print_FAIL = False
 summary_format = "bash"
+result_file = ""
+tmp_result = "/tmp/tmp_result"
 
 if len(sys.argv) < 2:
   print("Usage: python "+sys.argv[0] + "[direct|indirect|both] <number of times to repeat each test>")
@@ -87,6 +89,14 @@ else:
           print_FAIL = False
       elif "format" in arg:
         summary_format = arg
+      elif arg == "-o":
+        summary_format = "file"
+        i+=1
+        if (i >= len(sys.argv)):
+          print("out argument must be followed by a path for the results output")
+          exit()
+        result_file = sys.argv[i]
+      
       i+=1
 
 # Colored text
@@ -177,7 +187,7 @@ for compiler in compilers:
             while i < repeat_times:
               i += 1
 
-              os.system("rm /tmp/ripe_log")
+              os.system("rm -f /tmp/ripe_log")
               parameters = (tech,loc,ptr,attack,func)
               parameters_str = "-t %8s -l %5s -c %18s -i %16s -f %8s" % parameters
               sys.stdout.write('... Running %s ...\r' % parameters_str)
@@ -262,5 +272,15 @@ if "latex" in summary_format:
       ))
   print("\\end{tabular}\n")
 
-
-
+if "file" in summary_format:
+  original_stdout = sys.stdout
+  with open(tmp_result, 'w+') as f:
+    sys.stdout = f
+    for compiler in results:
+      print("\n"+bold("||Summary "+compiler+"||"))
+      total_attacks = results[compiler]["total_ok"] + results[compiler]["total_some"] + results[compiler]["total_fail"]
+      print("OK: %s SOME: %s FAIL: %s NP: %s Total Attacks: %s\n\n"% (
+        results[compiler]["total_ok"], results[compiler]["total_some"], results[compiler]["total_fail"],
+        results[compiler]["total_np"], total_attacks))
+  sys.stdout = original_stdout
+  os.system("sudo mv " + tmp_result + " " + result_file)

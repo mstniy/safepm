@@ -13,7 +13,8 @@ RUN apt-get update && apt-get -qq install -y \
     python \
     autotools-dev \
     automake \
-    libc6-dbg
+    libc6-dbg \
+    sudo
 
 # Install PMDK
 WORKDIR /
@@ -38,7 +39,20 @@ RUN mkdir build
 RUN git apply memcheck.patch
 RUN make build/gcc_attack_gen
 
-RUN useradd kartal
+# Create new user `docker` and disable 
+# password and gecos for later
+# --gecos explained well here:
+# https://askubuntu.com/a/1195288/635348
+RUN adduser --disabled-password --gecos '' safepm_user
+
+#  Add new user docker to sudo group
+RUN adduser safepm_user sudo
+
+# Ensure sudo group users are not 
+# asked for a password when using 
+# sudo command by ammending sudoers file
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
 RUN mkdir vgcore_blackhole
 RUN chmod 550 vgcore_blackhole # Disable writes to keep valgrind from producing large core dumps
-RUN chown kartal:kartal vgcore_blackhole
+RUN chown safepm_user:safepm_user vgcore_blackhole

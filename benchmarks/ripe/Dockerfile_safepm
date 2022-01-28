@@ -10,7 +10,8 @@ RUN apt-get update && apt-get -qq install -y \
     m4 \
     git \
     build-essential \
-    python
+    python \
+    sudo
 
 # Install PMDK
 WORKDIR /
