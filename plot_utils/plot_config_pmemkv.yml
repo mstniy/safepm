@@ -23,3 +23,19 @@
     variants:
       - Entries
     plot_folder: plots/pmemkv
+
+- plot:
+    plot_type: pmemkv_overhead
+    overhead_annot: false #not used
+    benchmarks:
+      #- delete_random
+      #- delete_seq
+      - randomreadwrite50
+      - randomreadwrite95
+      - read_random
+      - read_seq
+    y_axis: ops/sec
+    x_axis: Threads
+    variants:
+      - Entries
+    plot_folder: plots/pmemkv

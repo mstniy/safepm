@@ -14,3 +14,5 @@ python3 generate_plots.py plot_config_pmembench_tx.yml
 python3 generate_plots.py plot_config_partial_coverage.yml
 python3 generate_plots.py plot_config_open_create.yml
 python3 generate_plots.py plot_config_pmemkv.yml
+
+rm -rf asan pmdk safepm wrappers_only

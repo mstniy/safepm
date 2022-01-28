@@ -28,16 +28,16 @@ do
     
     mv ${variant_plotter}/pmemkv_result ${variant_plotter}/pmemkv_result_${j}
   fi
-  echo "delete_random: delete_random [3] [group: pmemobj]" > ${variant_plotter}/pmemkv_result
+  echo "delete_random: delete_random [6] [group: pmemobj]" > ${variant_plotter}/pmemkv_result
   cat $1/${variant_results}/delete/deleterandom_threads.csv | sed 's/,/;/g' >> ${variant_plotter}/pmemkv_result
-  echo "delete_seq: delete_seq [3] [group: pmemobj]" >> ${variant_plotter}/pmemkv_result
+  echo "delete_seq: delete_seq [6] [group: pmemobj]" >> ${variant_plotter}/pmemkv_result
   cat $1/${variant_results}/delete/deleteseq_threads.csv | sed 's/,/;/g' >> ${variant_plotter}/pmemkv_result
-  echo "randomreadwrite50: randomreadwrite50 [3] [group: pmemobj]" >> ${variant_plotter}/pmemkv_result
+  echo "randomreadwrite50: randomreadwrite50 [6] [group: pmemobj]" >> ${variant_plotter}/pmemkv_result
   cat $1/${variant_results}/randomreadwrite/50_readpercentage/readrandomwriterandom_threads.csv | sed 's/,/;/g' >> ${variant_plotter}/pmemkv_result
-  echo "randomreadwrite95: randomreadwrite95 [3] [group: pmemobj]" >> ${variant_plotter}/pmemkv_result
+  echo "randomreadwrite95: randomreadwrite95 [6] [group: pmemobj]" >> ${variant_plotter}/pmemkv_result
   cat $1/${variant_results}/randomreadwrite/95_readpercentage/readrandomwriterandom_threads.csv | sed 's/,/;/g' >> ${variant_plotter}/pmemkv_result
-  echo "read_random: read_random [3] [group: pmemobj]" >> ${variant_plotter}/pmemkv_result
+  echo "read_random: read_random [6] [group: pmemobj]" >> ${variant_plotter}/pmemkv_result
   cat $1/${variant_results}/read/readrandom_threads.csv | sed 's/,/;/g' >> ${variant_plotter}/pmemkv_result
-  echo "read_seq: read_seq [3] [group: pmemobj]" >> ${variant_plotter}/pmemkv_result
+  echo "read_seq: read_seq [6] [group: pmemobj]" >> ${variant_plotter}/pmemkv_result
   cat $1/${variant_results}/read/readseq_threads.csv | sed 's/,/;/g' >> ${variant_plotter}/pmemkv_result
 done

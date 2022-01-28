@@ -213,6 +213,67 @@ def pmembench_tx_plot_dual(x_values, y_values, info, x_axis_label, y_axis_label,
     plt.close(fig)       
     return
 
+def pmembench_tx_plot_single_vertical(x_values, y_values, info, x_axis_label, y_axis_label, overhead_annot, plot_folder):
+    print("pmembench_tx_plot_single_vertical")
+    fig, ax = plt.subplots(1, 1)
+    plot_idx = 0
+    colour_local = ["white", "black", "white", "grey", "white", "lightgray"]
+    hatch_local = ['' , '' , '++' , '', '/', '']
+    
+    for benchmark in x_values:
+        plot_title = benchmark
+        for variant in x_values[benchmark]:
+            experiment_params = variant.split('+')[1:]
+            number_of_bars = len(x_values) * (len(x_values[benchmark][variant]) - 1) #minus the first one which is the reference
+            bar_area_percentage = 0.8
+            w = float(bar_area_percentage / number_of_bars) #bar width to cover 80% of the dedicated space
+            x_axis_spacing = np.linspace(-bar_area_percentage/2 + w/2, bar_area_percentage/2 - w/2, num=number_of_bars)
+
+            #append values to the plot
+            for version_lib in x_values[benchmark][variant]:     
+                if (version_lib == "pmdk"):
+                    reference = [float(i) for i in y_values[benchmark][variant][version_lib]]
+                else:
+                    x_index = np.arange(0, len(x_values[benchmark][variant][version_lib]), 1) + x_axis_spacing[plot_idx]
+                    lib_values = [float(i) for i in y_values[benchmark][variant][version_lib]]
+                    values_to_plot = [x/y for x, y in zip(reference, lib_values)]
+                    rect = ax.bar(x_index, values_to_plot, width = w, 
+                                        color = colour_local[plot_idx], hatch = hatch_local[plot_idx],
+                                        edgecolor = 'black', align='center', label=pmembench_tx[benchmark])
+                    plot_idx = plot_idx + 1
+            
+            #configure the look of the plot
+            plt.xticks(range(0,len(x_values[benchmark][variant][version_lib])), x_values[benchmark][variant][version_lib])
+            ax.xaxis.set_ticks(range(0,len(x_values[benchmark][variant][version_lib])))
+            
+            x_labels = x_values[benchmark][variant][version_lib]
+            x_labels = [str(x) + " B" if int(x) < 1024 else str(int(int(x)/1024)) + " KB" for x in x_labels]
+
+            ax.xaxis.set_ticklabels(x_labels)
+            
+            ax.set_xlabel("Object size", fontsize=8)
+            ax.set_ylabel("Slowdown w.r.t. native PMDK", fontsize=8)
+
+            for tick in ax.yaxis.get_major_ticks():
+                tick.label.set_fontsize(8)
+            for tick in ax.xaxis.get_major_ticks():
+                tick.label.set_fontsize(8)
+            
+            #ax.set_title(pmembench_map_partial_cov[plot_title], fontsize=10)
+            handles, labels = ax.get_legend_handles_labels()
+            lgd = ax.legend(handles, labels, loc='upper center', #bbox_to_anchor=(0.5,-0.12),
+                                    bbox_to_anchor=(0., 1.03, 1., .102), #loc='lower left',
+                                    ncol=int(len(labels)/2) , borderaxespad=0., fontsize = 6)        
+   
+    #save the plot
+    plot_dir = plot_folder
+    #plot_file_path = plot_folder + "/" + benchmark
+    plot_file_path = plot_folder + "/" + "pmembench_tx_plot_single_vertical"
+    fig.set_size_inches(3.5, 3)
+    save_plot(plot_dir, plot_file_path, fig, lgd)
+    plt.close(fig)       
+    return
+
 def pmembench_open_create_plot(x_values, y_values, info, x_axis_label, y_axis_label, overhead_annot, plot_folder):
     
     print("pmembench_open_create_plot")
@@ -588,6 +649,70 @@ def pmemkv_plot(x_values, y_values, info, x_axis_label, y_axis_label, overhead_a
     plot_dir = plot_folder
     #plot_file_path = plot_folder + "/" + benchmark
     plot_file_path = plot_folder + "/" + "pmemkv_plot"
+    fig.set_size_inches(14, 2.2)
+    save_plot(plot_dir, plot_file_path, fig, lgd)
+    plt.close(fig)       
+    return
+
+def pmemkv_plot_overhead(x_values, y_values, info, x_axis_label, y_axis_label, overhead_annot, plot_folder):
+    print("pmemkv_plot_overhead")
+    fig, ax = plt.subplots(1, 4)
+    ax_idx = 0
+    for benchmark in x_values:
+        plot_title = benchmark
+        for variant in x_values[benchmark]:
+            experiment_params = variant.split('+')[1:]
+            #number_of_bars = 3
+            number_of_bars = len(x_values[benchmark][variant]) - 1
+            bar_area_percentage = 0.6
+            w = float(bar_area_percentage / number_of_bars) #bar width to cover 80% of the dedicated space
+            x_axis_spacing = np.linspace(-bar_area_percentage/2 + w/2, bar_area_percentage/2 - w/2, num=number_of_bars)
+            #append values to the plot
+            for version_lib in x_values[benchmark][variant]:     
+                if (version_lib == "pmdk"):
+                    reference = [float(i) for i in y_values[benchmark][variant][version_lib]]
+                else:
+                    internal_idx = (list(x_values[benchmark][variant].keys()).index(version_lib))-1
+                    x_index = np.arange(0, len(x_values[benchmark][variant][version_lib]), 1) + x_axis_spacing[internal_idx]
+                    lib_values = [float(i) for i in y_values[benchmark][variant][version_lib]]
+                    values_to_plot = [x/y for x, y in zip(reference, lib_values)]
+                    rect = ax[ax_idx].bar(x_index, values_to_plot, width = w, 
+                                        color = colour[internal_idx], hatch = hatch[internal_idx],
+                                        edgecolor = 'black', align='center', label=version_lib)
+
+            #configure the look of the plot
+            custom_x_ticks = list(map(float,x_values[benchmark][variant][version_lib]))
+            custom_x_ticks = [round(a) for a in custom_x_ticks]
+
+            ax[ax_idx].xaxis.set_ticks(range(0,len(x_values[benchmark][variant][version_lib])))
+            ax[ax_idx].xaxis.set_ticklabels(custom_x_ticks)
+            #plt.xticks(range(0,standard_x_ticks), x_values[benchmark][variant]["pmdk"])
+            for tick in ax[ax_idx].xaxis.get_major_ticks():
+                tick.label.set_fontsize(8)
+            for tick in ax[ax_idx].yaxis.get_major_ticks():
+                tick.label.set_fontsize(8)
+            ax[ax_idx].yaxis.offsetText.set_fontsize(8)
+
+            if (ax_idx == 0):
+                ax[ax_idx].set_ylabel("Slowdown w.r.t. native PMDK", fontsize=10)
+
+            #ax[ax_idx].ticklabel_format(axis='y', style='sci', scilimits=(6,6)) 
+
+            ax[ax_idx].set_title(pmemkv[plot_title], fontsize=8)
+            handles, labels = ax[ax_idx].get_legend_handles_labels()
+            labels = [versions_map[label] for label in labels]
+            if (ax_idx == 2): #to set the legend once
+                lgd = ax[ax_idx].legend(handles, labels,  #bbox_to_anchor=(0.5,-0.12),
+                                        bbox_to_anchor=(-0.5, 1.32), loc='upper left', borderaxespad=0.,
+                                        ncol=len(labels), fontsize=10)     
+            ax_idx = ax_idx + 1
+    
+    fig.text(0.508, -0.025, 'Threads', ha='center', fontsize=9)
+
+    #save the plot
+    plot_dir = plot_folder
+    #plot_file_path = plot_folder + "/" + benchmark
+    plot_file_path = plot_folder + "/" + "pmemkv_plot_overhead"
     fig.set_size_inches(14, 2.2)
     save_plot(plot_dir, plot_file_path, fig, lgd)
     plt.close(fig)       

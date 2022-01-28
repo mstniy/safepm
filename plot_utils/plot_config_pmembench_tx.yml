@@ -41,3 +41,19 @@
     variants:
       - ops-per-thread
     plot_folder: plots/pmembench_tx
+
+- plot:
+    plot_type: pmembench_tx_single_vertical
+    overhead_annot: false #not used
+    benchmarks:
+      - obj_atomic_alloc
+      - obj_tx_alloc
+      - obj_atomic_free
+      - obj_tx_free
+      - obj_atomic_realloc
+      - obj_tx_realloc
+    y_axis: ops-per-second[1/sec]
+    x_axis: data-size
+    variants:
+      - ops-per-thread
+    plot_folder: plots/pmembench_tx
