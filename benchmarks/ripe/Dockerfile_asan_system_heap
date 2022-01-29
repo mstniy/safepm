@@ -13,16 +13,8 @@ RUN apt-get update && apt-get -qq install -y \
     python \
     sudo
 
-# Install PMDK
-WORKDIR /
-RUN git clone https://github.com/mstniy/pmdk.git /pmdk
-WORKDIR /pmdk
-RUN git checkout pmasan-1.9.2
-RUN make -j7 install
-RUN ldconfig
-
 COPY . /ripe64
 WORKDIR /ripe64
 RUN mkdir build
-RUN make build/gcc_attack_gen_pmemobj_heap
-RUN cd build && mv gcc_attack_gen_pmemobj_heap gcc_attack_gen
+RUN make build/gcc_attack_gen_system_heap
+RUN cd build && mv gcc_attack_gen_system_heap gcc_attack_gen

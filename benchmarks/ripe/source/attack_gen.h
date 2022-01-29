@@ -35,7 +35,6 @@
 #include <limits.h>
 #include <setjmp.h>
 #include <fcntl.h>
-#include <libpmemobj.h>
 
 #include "parameters.h"
 

@@ -37,7 +37,8 @@ COPY . /ripe64
 WORKDIR /ripe64
 RUN mkdir build
 RUN git apply memcheck.patch
-RUN make build/gcc_attack_gen
+RUN make NO_ASAN=1 build/gcc_attack_gen_pmemobj_heap
+RUN cd build && mv gcc_attack_gen_pmemobj_heap gcc_attack_gen
 
 # Create new user `docker` and disable 
 # password and gecos for later

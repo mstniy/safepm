@@ -77,48 +77,14 @@ static char* executable_path;
 static boolean output_debug_info = FALSE;
 static boolean output_error_msg = TRUE;
 
-static PMEMobjpool* pool;
-static uint64_t pool_uuid_lo;
-
-static void init_pool() {
-  unlink("/mnt/ripe/vmem_dummy.pool");
-  pool = pmemobj_create("/mnt/ripe/vmem_dummy.pool", "vmem_dummy", 1*1024*1024*1024, 0660); // 1gb
-  if (pool == NULL)
-    abort();
-    
-  PMEMoid oid;
-  if (pmemobj_alloc(pool, &oid, 1, 1, NULL, NULL)) // Allocate a dummy object to obtain the uuid of the pool
-    abort();
-    
-  pool_uuid_lo = oid.pool_uuid_lo;
-}
-
-void* pm_malloc(size_t size) {
-  PMEMoid oid;
-  if (pmemobj_alloc(pool, &oid, size, 1, NULL, NULL))
-    return NULL;
-  return pmemobj_direct(oid);
-}
-
-void  pm_free(void* ptr) {
-  PMEMoid oid;
-  oid.pool_uuid_lo = pool_uuid_lo;
-  oid.off = (uint8_t*)ptr-(uint8_t*)pool;
-  
-  pmemobj_free(&oid);
-}
-
 int main(int argc, char **argv) {
-  init_pool(); // Initialize the persistent memory pool to later allocate memory on it
-
   int option_char, i;
   // make the stack size not computable to make compiler use leave for base pointer attacks
   char dummy_buffer[argc*10];
-  memset(dummy_buffer, 0, argc*10);
   for (i=0; i<argc; i++){
     dummy_buffer[i]='a';
   }
-  if (dummy_buffer[1]!='a')
+  if (dummy_buffer[21]==12)
     printf("%s", dummy_buffer);
   
   jmp_buf stack_jmp_buffer_param;
@@ -201,9 +167,9 @@ void perform_attack(int (*stack_func_ptr_param)(const char *),
   /* Two buffers declared to be able to chose buffer that gets allocated    */
   /* first on the heap. The other buffer will be set as a target, i.e. a    */
   /* heap array of function pointers.                                       */
-  char *heap_buffer1 = (char *)pm_malloc(256 + sizeof(uintptr_t));
-  char *heap_buffer2 = (char *)pm_malloc(256 + sizeof(uintptr_t));
-  char *heap_buffer3 = (char *)pm_malloc(128 + sizeof(uintptr_t));
+  char *heap_buffer1 = (char *)malloc(256 + sizeof(uintptr_t));
+  char *heap_buffer2 = (char *)malloc(256 + sizeof(uintptr_t));
+  char *heap_buffer3 = (char *)malloc(128 + sizeof(uintptr_t));
   /* Check that malloc went fine */
   if (heap_buffer1 == NULL || heap_buffer2 == NULL || heap_buffer3 == NULL) {
     fprintf(stderr,"Error. Unable to allocate heap memory.\n");
@@ -216,9 +182,9 @@ void perform_attack(int (*stack_func_ptr_param)(const char *),
   /* pointer array.                                                         */
   int (**heap_func_ptr)(const char *) = (void *)heap_buffer3;
   /* Target: Longjmp buffer on the heap                                     */
-  jmp_buf *heap_jmp_buffer = (jmp_buf *)pm_malloc(sizeof(jmp_buf));
+  jmp_buf *heap_jmp_buffer = (jmp_buf *)malloc(sizeof(jmp_buf));
 
-  struct attackme *heap_struct = (struct attackme*)pm_malloc(sizeof(struct attackme));
+  struct attackme *heap_struct = (struct attackme*)malloc(sizeof(struct attackme));
   heap_struct->func_ptr = dummy_function;
 
 
@@ -874,7 +840,7 @@ boolean build_payload(CHARPAYLOAD *payload) {
   //to the correct size
 
   // Allocate payload buffer
-  payload->buffer = (char *)pm_malloc(payload->size);
+  payload->buffer = (char *)malloc(payload->size);
   if (payload->buffer == NULL) {
     perror("Unable to allocate payload buffer.");
     return FALSE;
@@ -919,7 +885,7 @@ boolean build_payload(CHARPAYLOAD *payload) {
     /* Extend the payload to add a fake ret add and the parameter to system */
     payload->size += 3*sizeof(uintptr_t);
     // Allocate new payload buffer
-    temp_char_buffer = (char *)pm_malloc(payload->size);
+    temp_char_buffer = (char *)malloc(payload->size);
     // Copy current payload to new payload buffer
     memcpy(temp_char_buffer, payload->buffer, payload->size);
 
@@ -938,7 +904,7 @@ boolean build_payload(CHARPAYLOAD *payload) {
         sizeof(uintptr_t));
 
     // Free the old payload buffer
-    pm_free(payload->buffer);
+    free(payload->buffer);
     // Set the new payload buffer
     payload->buffer = temp_char_buffer;
 
@@ -956,7 +922,7 @@ boolean build_payload(CHARPAYLOAD *payload) {
       (uintptr_t)&exit};
 
     payload->size += 4*sizeof(uintptr_t);
-    temp_char_buffer = (char *)pm_malloc(payload->size);
+    temp_char_buffer = (char *)malloc(payload->size);
     memcpy(temp_char_buffer, payload->buffer, payload->size);
 
     memcpy(temp_char_buffer + payload->size - 1*sizeof(uintptr_t) - sizeof(char),
@@ -976,7 +942,7 @@ boolean build_payload(CHARPAYLOAD *payload) {
         sizeof(uintptr_t));
 
     // Free the old payload buffer
-    pm_free(payload->buffer);
+    free(payload->buffer);
     // Set the new payload buffer
     payload->buffer = temp_char_buffer;
     /* *************************************** */
@@ -1085,7 +1051,7 @@ boolean build_payload(CHARPAYLOAD *payload) {
       // Extend payload size
       payload->size += sizeof(uintptr_t);
       // Allocate new payload buffer
-      temp_char_buffer = (char *)pm_malloc(payload->size);
+      temp_char_buffer = (char *)malloc(payload->size);
       // Copy current payload to new payload buffer
       memcpy(temp_char_buffer, payload->buffer, payload->size);
       // Copy existing return address to new payload
@@ -1094,7 +1060,7 @@ boolean build_payload(CHARPAYLOAD *payload) {
           sizeof(uintptr_t));
 
       // Free the old payload buffer
-      pm_free(payload->buffer);
+      free(payload->buffer);
       // Set the new payload buffer
       payload->buffer = temp_char_buffer;
 
@@ -1675,7 +1641,7 @@ int find_gadget_offset(char* search_chars){
   // Jump back to the beginning of the file
   rewind(pFile);
 
-  buffer = (char *)pm_malloc((file_len+1)*sizeof(char));
+  buffer = (char *)malloc((file_len+1)*sizeof(char));
   if (buffer==NULL){
     fprintf(stderr, "Error: Cannot allocate memory in find_gadget");
     exit(1);
@@ -1771,3 +1737,4 @@ void gadget4(int a, int b){
   __asm__("nop; pop %rdi; ret;");
   return;
 }
+

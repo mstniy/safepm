@@ -1,16 +1,3 @@
-diff --git a/Makefile b/Makefile
-index dd824f0..808c065 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- GCC=gcc
- CLG=clang
- # Add debug info and enable ASan
--CFLAGS=-g -fsanitize=address
-+CFLAGS=-g
- LFLAGS=-lpmemobj
- 
- all: build/gcc_attack_gen build/clang_attack_gen
 diff --git a/ripe_tester.py b/ripe_tester.py
 index f02e5fd..5a805ef 100755
 --- a/ripe_tester.py

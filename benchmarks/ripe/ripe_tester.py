@@ -254,13 +254,12 @@ for compiler in compilers:
           'total_np': total_np}
 
 total_attacks = total_ok + total_some + total_fail + total_np
-if "bash" in summary_format:
-  for compiler in results:
-    print("\n"+bold("||Summary "+compiler+"||"))
-    total_attacks = results[compiler]["total_ok"] + results[compiler]["total_some"] + results[compiler]["total_fail"]
-    print("OK: %s SOME: %s FAIL: %s NP: %s Total Attacks: %s\n\n"% (
-      results[compiler]["total_ok"], results[compiler]["total_some"], results[compiler]["total_fail"],
-      results[compiler]["total_np"], total_attacks))
+for compiler in results:
+  print("\n"+bold("||Summary "+compiler+"||"))
+  total_attacks = results[compiler]["total_ok"] + results[compiler]["total_some"] + results[compiler]["total_fail"]
+  print("OK: %s SOME: %s FAIL: %s NP: %s Total Attacks: %s\n\n"% (
+    results[compiler]["total_ok"], results[compiler]["total_some"], results[compiler]["total_fail"],
+    results[compiler]["total_np"], total_attacks))
 
 if "latex" in summary_format:
   print("\\begin{tabular}{|c|c|c|c|}\\hline\n"

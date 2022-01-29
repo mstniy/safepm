@@ -6,7 +6,7 @@ then
   exit 1
 fi
 
-declare -a variants=( "asan" "safepm" "memcheck" )
+declare -a variants=( intact asan_system_heap asan_pmemobj_heap safepm memcheck )
 
 for variant in "${variants[@]}"
 do
