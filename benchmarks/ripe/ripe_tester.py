@@ -170,6 +170,7 @@ def analyze_log2(additional_info):
 if not os.path.exists("/tmp/ripe-eval"):
   os.system("mkdir /tmp/ripe-eval")
 
+progress = 0
 for compiler in compilers:
   total_ok = 0
   total_fail = 0
@@ -180,6 +181,7 @@ for compiler in compilers:
       for ptr in code_ptr:
         for attack in attacks:
           for func in funcs:
+            progress = progress + 1
             i = 0
             s_attempts = 0
             attack_possible = 1
@@ -190,7 +192,7 @@ for compiler in compilers:
               os.system("rm -f /tmp/ripe_log")
               parameters = (tech,loc,ptr,attack,func)
               parameters_str = "-t %8s -l %5s -c %18s -i %16s -f %8s" % parameters
-              sys.stdout.write('... Running %s ...\r' % parameters_str)
+              sys.stdout.write('... Running %s %d/%d...\r' % (parameters_str, progress, len(techniques) * len(locations) * len(code_ptr) * len(attacks) * len(funcs)))
               sys.stdout.flush()
               os.system("echo "+parameters_str+">> /tmp/ripe_log")
               ## Valgrind - Memcheck
