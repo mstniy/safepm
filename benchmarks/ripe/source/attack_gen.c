@@ -81,8 +81,8 @@ static PMEMobjpool* pool;
 static uint64_t pool_uuid_lo;
 
 static void init_pool() {
-  unlink("/dev/shm/vmem_dummy.pool");
-  pool = pmemobj_create("/dev/shm/vmem_dummy.pool", "vmem_dummy", 1*1024*1024*1024, 0660); // 1gb
+  unlink("/mnt/ripe/vmem_dummy.pool");
+  pool = pmemobj_create("/mnt/ripe/vmem_dummy.pool", "vmem_dummy", 1*1024*1024*1024, 0660); // 1gb
   if (pool == NULL)
     abort();
     

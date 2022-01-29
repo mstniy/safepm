@@ -1,4 +1,11 @@
 #!/bin/bash
+
+if ! [ -d "$BENCHMARK_PM_PATH" ]
+then
+  echo "Please set BENCHMARK_PM_PATH to a valid directory." 2>&1
+  exit 1
+fi
+
 docker build -t safepm-pmembench .
 mkdir -p results/pmembench_map
 mkdir -p results/pmembench_tx

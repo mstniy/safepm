@@ -1,5 +1,11 @@
 set -e
 
+if ! [ -d "$BENCHMARK_PM_PATH" ]
+then
+  echo "Please set BENCHMARK_PM_PATH to a valid directory." 2>&1
+  exit 1
+fi
+
 declare -a variants=("vanilla" "asan" "safepm")
 
 for variant in "${variants[@]}"
