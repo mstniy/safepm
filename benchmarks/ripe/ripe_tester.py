@@ -98,6 +98,10 @@ else:
         result_file = sys.argv[i]
       
       i+=1
+  
+  user = os.popen('whoami').read()
+  if ("safepm_user" in user):
+    os.system("sudo chmod 777 /mnt/ripe")
 
 # Colored text
 def colored_string(string, color, size=0):
