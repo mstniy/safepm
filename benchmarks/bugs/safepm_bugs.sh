@@ -11,6 +11,6 @@ fi
 
 docker build -t safepm-pmembench .
 
-docker run -v "$BENCHMARK_PM_PATH:/mnt/pmembench" -v -it safepm-pmembench bash bug1_btree.sh
+docker run -v "$BENCHMARK_PM_PATH:/mnt/pmembench" -v -t safepm-pmembench bash bug1_btree.sh
 
-docker run -v "$BENCHMARK_PM_PATH:/mnt/pmembench" -v -it safepm-pmembench bash bug2_tx.sh
+docker run -v "$BENCHMARK_PM_PATH:/mnt/pmembench" -v -t safepm-pmembench bash bug2_tx.sh

@@ -29,8 +29,8 @@ do
   then
     # We trick valgrind into not producing (large) core dumps by creating a read-only directory and running the tests in that. But for that to work, we must run as a non-root user in the container
     docker run -v "$BENCHMARK_PM_PATH:/mnt/ripe" ripe64-$variant rm -f /mnt/ripe/vmem_dummy.pool # The non-root user in the container cannot overwrite the pool created by the root user during the previous runs
-    docker run -v "$BENCHMARK_PM_PATH:/mnt/ripe" -v "$(pwd)/results:/results" -it --shm-size=2g --user safepm_user ripe64-$variant ./ripe_tester.py both 3 gcc -o /results/$variant
+    docker run -v "$BENCHMARK_PM_PATH:/mnt/ripe" -v "$(pwd)/results:/results" -t --shm-size=2g --user safepm_user ripe64-$variant ./ripe_tester.py both 3 gcc -o /results/$variant
   else
-    docker run -v "$BENCHMARK_PM_PATH:/mnt/ripe" -v "$(pwd)/results:/results" -it --shm-size=2g ripe64-$variant ./ripe_tester.py both 3 gcc -o /results/$variant
+    docker run -v "$BENCHMARK_PM_PATH:/mnt/ripe" -v "$(pwd)/results:/results" -t --shm-size=2g ripe64-$variant ./ripe_tester.py both 3 gcc -o /results/$variant
   fi
 done
