@@ -13,15 +13,15 @@ export BENCHMARK_PM_PATH="$1"
 
 ########## PMEMBENCH ##########
 
-#cd ../benchmarks/pmembench
-#./run-variants.sh
+cd ../benchmarks/pmembench
+./run-variants.sh
 
 ########## PMEMKV ##########
 
-#cd ../pmemkv
-#./run-variants.sh
+cd ../pmemkv
+./run-variants.sh
 
 ########## RIPE ##########
 
-cd ../benchmarks/ripe
+cd ../ripe
 ./run-variants.sh
