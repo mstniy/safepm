@@ -29,6 +29,13 @@ Simply run:
 ./safepm_figures.sh
 ```
 
+To see the RIPE benchmark results in a human readable format, we provide the `table_4.sh` script.
+This script will print the results in the standard output as a table, similar to the one in the paper.
+Simply run:
+```
+./table_4.sh
+```
+
 ### Reproduce bugs
 
 To reproduce the bugs found with SafePM ([[1]](https://github.com/pmem/pmdk/issues/5333),[[2]](https://github.com/pmem/pmdk/issues/5334)), run:
