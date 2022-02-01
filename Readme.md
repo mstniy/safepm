@@ -8,7 +8,7 @@ SafePM was published in Eurosys 2022.
 The artifact evaluation folder contains the required scripts to reproduce the results and the figures from our Paper.
 For more information please look at our [Artifact Evaluation folder](https://github.com/mstniy/safepm/tree/master/artifact_evaluation).
 
-### Installation
+## Installation
 
 Initially clone the repository:
 ```
@@ -30,13 +30,22 @@ make
 make install
 ```
 
-### Tests
+## SafePM source code organization
+### PMDK submodule
+This submodule is our modified PMDK fork. Our branches of interest are the following:
+1. `pmasan-1.9.2`: Modified PMDK that includes the SafePM's wrappers (referred as `SafePM` in the paper). This branch also contains a patch to disable ASan. When it is applied, this PMDK variant will only include the SafePM's wrappers but will omit the ASan's instrumentation (referred as `SafePM w/o Asan` in the paper).
+2. `asan_only-1.9.2`: Configured PMDK to be builT with ASan (referred as `ASan` in the paper).
+3. `vanilla-1.9.2`: Unmodified PMDK (referred as `native` in the paper).
 
+### Benchmarks
+This folder contains the benchmark drivers and scripts used for the evaluation of SafePM. For more details and configuration information, see the folder [`benchmarks`](https://github.com/mstniy/safepm/tree/master/benchmarks).
+### Utils
+Currently, there is only one utility program: `pool_overhead`. It gets built together with the tests. Set the environment variable `POOL_SIZE` and run it to get an estimate of the user-available area (excluding e.g. the PMDK metadata and the SafePM persistent shadow memory).
+### Tests
 The tests make sure SafePM provides ASan-level protection even for memory violations that happen within the PMDK-controlled persistent heap. To run the tests, use:  
 ```
 ./test.sh
 ```
-
 This will build SafePM and the tests, and run the tests. Most tests contain deliberate memory violations, and are meant to crash. `test.sh` makes sure that the tests that are meant to crash do indeed crash, in the way they are supposed to. Note that the last test, `zalloc`, takes some time to complete.
 
 To better understand how SafePM provides extra memory safety over PMDK, when used with ASan, you can checkout to the upstream branch within the pmdk submodule, and run the tests again:  
@@ -47,19 +56,7 @@ make clobber
 cd ..
 ./test.sh
 ```
-
-### Utilities
-
-Currently, there is only one utility program: `pool_overhead`. It gets built together with the tests. Set the environment variable `POOL_SIZE` and run it to get an estimate of the user-available area (excluding e.g. the PMDK metadata and the SafePM persistent shadow memory).
-
-### Benchmarks
-
-For various performance benchmark drivers and scripts, see the folder `benchmarks`.
-
-### Plot utilities
-
-Scripts used for creating the plots in the paper.
-
-### ``vscode_init.sh`
-
+### Plot utils
+Scripts used for parsing and analysing the benchmark results, and creating the plots in the paper.
+### vscode_init.sh
 Builds the repo with `bear` to enable the vscode extension `clangd` to do auto-completion, jumps etc. My experience with Intellisense has been very poor.
