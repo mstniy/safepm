@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 RESULTS="../benchmarks/crash_consistency/results"
