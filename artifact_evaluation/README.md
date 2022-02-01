@@ -88,4 +88,4 @@ We require the following software configuration to reproduce our experimental re
 To use SafePM in a native environment the required software dependencies are the same as those of [PMDK v1.9.2](https://github.com/pmem/pmdk/tree/1.9.2#dependencies) and can also be found in the respective Dockerfiles in our benchmarks' directories.
 
 ## SafePM code structure
-For more information about the source code structure please see [here](https://github.com/mstniy/safepm/blob/master/Readme.md).
+For more information about the source code structure please see [here](https://github.com/mstniy/safepm/blob/master/Readme.md#safepm-source-code-organization).
