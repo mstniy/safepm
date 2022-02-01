@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 RESULTS="../benchmarks/ripe/results"
