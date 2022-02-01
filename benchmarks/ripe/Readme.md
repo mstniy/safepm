@@ -10,5 +10,5 @@ For further details, see our paper and [Hubert ROSIER's repo](https://github.com
 ## How to run
 
 ```
-$ ./run_variants.sh
+$ BENCHMARK_PM_PATH=<path to PM> ./run_variants.sh
 ```
