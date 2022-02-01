@@ -76,7 +76,11 @@ $ ./valgrind_summary.sh
 ## Hardware configuration
 To reproduce the results from the paper, the machine should preferably be equipped with a physical persistent memory module (e.g., Intel Optane DC) with at least 64 GB available space. The persistent memory module should be mounted using a DAX-enabled file system (e.g. EXT4-DAX)
 Additionally, we recommend running the [pmemkv](https://github.com/pmem/pmemkv) experiments on a machine with at least 24 cores, as they are configured to run with up to 24 threads. 
-The testbed, used to conduct our experiments, is equipped with Intel(R) Xeon(R) Gold 6212U CPU with 24 cores and 768GB (6 channels×128 GB/DIMM) Intel Optane DC DIMMs.
+The testbed, used to conduct our experiments, is equipped with 
+1. Intel(R) Xeon(R) Gold 6212U CPU @ 2.40GHz (24 cores)
+2. L1d cache: 768 KiB, L1i cache: 768 KiB, L2 cache: 24 MiB, L3 cache: 35.8 MiB
+3. 192 GB (6 channels×32 GB/DIMM) DRAM 
+4. 768 GB (6 channels×128 GB/DIMM) Intel Optane DC DIMMs.
 
 ## Software dependecies
 We require the following software configuration to reproduce our experimental results:
