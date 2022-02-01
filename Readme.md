@@ -42,7 +42,7 @@ This folder contains the benchmark drivers and scripts used for the evaluation o
 ### Utils
 Currently, there is only one utility program: `pool_overhead`. It gets built together with the tests. Set the environment variable `POOL_SIZE` and run it to get an estimate of the user-available area (excluding e.g. the PMDK metadata and the SafePM persistent shadow memory).
 ### Tests
-The tests make sure SafePM provides ASan-level protection even for memory violations that happen within the PMDK-controlled persistent heap. To run the tests, use:  
+This folder contains various unit tests for SafePM. The tests make sure SafePM provides ASan-level protection even for memory violations that happen within the PMDK-controlled persistent heap. To run the tests, use:  
 ```
 ./test.sh
 ```
