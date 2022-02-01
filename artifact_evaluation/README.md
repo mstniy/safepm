@@ -74,13 +74,11 @@ $ ./valgrind_summary.sh
 ```
 
 ## Hardware configuration
-
 To reproduce the results from the paper, the machine should preferably be equipped with a physical persistent memory module (e.g., Intel Optane DC) with at least 64 GB available space. The persistent memory module should be mounted using a DAX-enabled file system (e.g. EXT4-DAX)
 Additionally, we recommend running the [pmemkv](https://github.com/pmem/pmemkv) experiments on a machine with at least 24 cores, as they are configured to run with up to 24 threads. 
 The testbed, used to conduct our experiments, is equipped with Intel(R) Xeon(R) Gold 6212U CPU with 24 cores and 768GB (6 channels×128 GB/DIMM) Intel Optane DC DIMMs.
 
 ## Software dependecies
-
 We require the following software configuration to reproduce our experimental results:
 1. Linux (tested in Ubuntu 20.04.3 LTS with kernel version 5.4.0)
 2. Docker (tested with Docker version 20.10.7): Each experiment comes with its pre-configured Dockerfile. We provide scripts that automatically build the images containing the required software dependencies.
@@ -88,3 +86,6 @@ We require the following software configuration to reproduce our experimental re
 4. Python 3.7 or newer (tested with Python 3.8.10): To execute our parsing and plotting scripts for the figures.
 
 To use SafePM in a native environment the required software dependencies are the same as those of [PMDK v1.9.2](https://github.com/pmem/pmdk/tree/1.9.2#dependencies) and can also be found in the respective Dockerfiles in our benchmarks' directories.
+
+## SafePM code structure
+For more information about the source code structure please see [here](https://github.com/mstniy/safepm/blob/master/Readme.md).
