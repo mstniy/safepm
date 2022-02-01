@@ -94,20 +94,20 @@ More specifically, to install `pmemkv` we use the following open-source librarie
 2. `libpmemobj-cpp` : https://github.com/pmem/libpmemobj-cpp.git tag: stable-1.12
 3. `pmemkv` : https://github.com/pmem/pmemkv.git tag: 1.4
 4. `pmemkv_bench` :  https://github.com/pmem/pmemkv-bench.git commit: 32d94c0
-The instructeions to clone and install the above libraries can be found in the Dockerfiles.
+The instructions to clone and install the above libraries can be found in the Dockerfiles.
 
 The configurations for `pmemkv_bench` are in the `$(SafePM_root)/benchmarks/pmemkv/run-all.sh` script. Further parameters for the `pmemkv` benchmarks, such as the thread count and benchmark type, can be found in each of the `$(SafePM_root)/benchmarks/pmemkv/run-pmemkv-bench-$(variant).sh` scripts
 
 ### RIPE benchmark
 The source code for the RIPE benchmark and our port to PM are placed in `$(SafePM_root)/benchmarks/ripe/source` directory. The `ripe_tester.py` script acts as a driver for the RIPE executable. The attack parameters are defined in lists starting from [here](https://github.com/mstniy/safepm/blob/master/benchmarks/ripe/ripe_tester.py#L22). The RIPE benchmark variants and the parameters we provide to `ripe_tester.py` in our experiments can be found in the [`$(SafePM_root)/benchmarks/ripe/run-variants.sh`](https://github.com/mstniy/safepm/blob/0fb7c269b927abc65b51a992ec0c805fa4c08a62/benchmarks/ripe/run-variants.sh) script.
 
-Note that for valgrind's `memcheck`, we used [this version](https://github.com/pmem/valgrind.git).
+Note that for `valgrind`, we used [this version](https://github.com/pmem/valgrind.git).
 
 ### Crash consistency benchmark
-
+For our experiments on crash consistency we run `pmembench` with the `pmembench_map.cfg` and `pmembench_tx_safepm.cfg` configuration files, as described in `pmembench` section above. We execute the `change_pmembench_file_path.sh` script to lessen the operations in these configuration files to keep the runtime reasonable, because of the huge overheads that valgrind introduces. Note that for `valgrind`, we used [this version](https://github.com/pmem/valgrind.git) to include `pmemcheck`. The executed `valgrind` commands inside the container and the output files of the experiment can be found in `$(SafePM_root)/benchmarks/crash_consistency/inner_run.sh`.
 
 ### Bug reproduction
-
+To reproduce the bugs, we define in our PMDK fork's branch `pmasan-1.9.2` two distinct configuration files for `pmembench`, namely `pmembench_tx_bug.cfg` and `pmembench_map_bug.cfg`. These configuration files lead to the reported memory safety violations ([[1]](https://github.com/pmem/pmdk/issues/5333),[[2]](https://github.com/pmem/pmdk/issues/5334)) that we discovered using SafePM.
 
 ## Hardware configuration
 To reproduce the results from the paper, the machine should preferably be equipped with a physical persistent memory module (e.g., Intel Optane DC) with at least 64 GB available space. The persistent memory module should be mounted using a DAX-enabled file system (e.g. EXT4-DAX)
@@ -118,7 +118,7 @@ The testbed, used to conduct our experiments, is equipped with:
 3. 192 GB (6 channels×32 GB/DIMM) DRAM 
 4. 768 GB (6 channels×128 GB/DIMM) Intel Optane DC DIMMs.
 
-## Software dependecies
+## Software dependencies
 We require the following software configuration to reproduce our experimental results:
 1. Linux (tested in Ubuntu 20.04.3 LTS with kernel version 5.4.0)
 2. Docker (tested with Docker version 20.10.7): Each experiment comes with its pre-configured Dockerfile. We provide scripts that automatically build the images containing the required software dependencies.
