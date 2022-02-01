@@ -73,10 +73,46 @@ The following script prints in the `standard output` the `valgrind` summaries to
 $ ./valgrind_summary.sh
 ```
 
+## Benchmark configuration
+
+### Dockerfiles
+For each of our benchmarks we provide Dockerfile(s). They include the software dependencies required to run each experiment. Additionally, the Dockerfile includes the setup of the variants for the experiments. They clone and install the appropriate PMDK fork(s) and run patches, where applicable. For more information about SafePM's PMDK forks, please see [here](https://github.com/mstniy/safepm#pmdk-submodule).
+
+### pmembench
+`pmembench` is a benchmark driver shipped with PMDK. Its source code can be found in `$(PMDK_root)/src/benchmarks/pmembench.cpp`. It is accompanied with a set of configurations files that define the parameters of each benchmark run. These configurations are placed in `$(PMDK_root)/src/benchmarks/` folder.
+
+For our experiments, we use `pmembench` with the following configurations:
+1. `pmembench_map.cfg` : Configuration file containing the parameters for experiments on PM indices (paper Figure 3).
+2. `pmembench_tx_safepm.cfg` : Configuration file containing the parameters for the experiments on alloc/realloc/free PMDK operations (paper Figure 5).
+3. `pmembench_obj_gen_safepm.cfg` : Configuration file containing the parameters for the experiments pool_open/pool_create PMDK operaitions (paper Figure 6).
+4. `pmembench_map_partial_cov.cfg` : Configuration file containing the parameters for the partial coverage experiments on PMDK's hashmap (paper Figure 7).
+
+### pmemkv
+[`pmemkv`](https://github.com/pmem/pmemkv) is a local/embedded key-value datastore optimized for persistent memory. For our experiments we use the [`pmemkv_bench`](https://github.com/pmem/pmemkv-bench) utility which provides some standard read, write & remove benchmarks. 
+More specifically, to install `pmemkv` we use the following open-source libraries:
+1. `memkind`: https://github.com/memkind/memkind.git tag: v1.11.0
+2. `libpmemobj-cpp` : https://github.com/pmem/libpmemobj-cpp.git tag: stable-1.12
+3. `pmemkv` : https://github.com/pmem/pmemkv.git tag: 1.4
+4. `pmemkv_bench` :  https://github.com/pmem/pmemkv-bench.git commit: 32d94c0
+The instructeions to clone and install the above libraries can be found in the Dockerfiles.
+
+The configurations for `pmemkv_bench` are in the `$(SafePM_root)/benchmarks/pmemkv/run-all.sh` script. Further parameters for the `pmemkv` benchmarks, such as the thread count and benchmark type, can be found in each of the `$(SafePM_root)/benchmarks/pmemkv/run-pmemkv-bench-$(variant).sh` scripts
+
+### RIPE benchmark
+The source code for the RIPE benchmark and our port to PM are placed in `$(SafePM_root)/benchmarks/ripe/source` directory. The `ripe_tester.py` script acts as a driver for the RIPE executable. The attack parameters are defined in lists starting from [here](https://github.com/mstniy/safepm/blob/master/benchmarks/ripe/ripe_tester.py#L22). The RIPE benchmark variants and the parameters we provide to `ripe_tester.py` in our experiments can be found in the [`$(SafePM_root)/benchmarks/ripe/run-variants.sh`](https://github.com/mstniy/safepm/blob/0fb7c269b927abc65b51a992ec0c805fa4c08a62/benchmarks/ripe/run-variants.sh) script.
+
+Note that for valgrind's `memcheck`, we used [this version](https://github.com/pmem/valgrind.git).
+
+### Crash consistency benchmark
+
+
+### Bug reproduction
+
+
 ## Hardware configuration
 To reproduce the results from the paper, the machine should preferably be equipped with a physical persistent memory module (e.g., Intel Optane DC) with at least 64 GB available space. The persistent memory module should be mounted using a DAX-enabled file system (e.g. EXT4-DAX)
 Additionally, we recommend running the [pmemkv](https://github.com/pmem/pmemkv) experiments on a machine with at least 24 cores, as they are configured to run with up to 24 threads. 
-The testbed, used to conduct our experiments, is equipped with 
+The testbed, used to conduct our experiments, is equipped with:
 1. Intel(R) Xeon(R) Gold 6212U CPU @ 2.40GHz (24 cores)
 2. L1d cache: 768 KiB, L1i cache: 768 KiB, L2 cache: 24 MiB, L3 cache: 35.8 MiB
 3. 192 GB (6 channels×32 GB/DIMM) DRAM 
