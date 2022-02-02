@@ -34,7 +34,7 @@ make install
 ### PMDK submodule
 This submodule is our modified PMDK fork. Our branches of interest are the following:
 1. `pmasan-1.9.2`: Modified PMDK that includes the SafePM's wrappers (referred as `SafePM` in the paper). This branch also contains a patch to disable ASan. When it is applied, this PMDK variant will only include the SafePM's wrappers but will omit the ASan's instrumentation (referred as `SafePM w/o Asan` in the paper).
-2. `asan_only-1.9.2`: Configured PMDK to be builT with ASan (referred as `ASan` in the paper).
+2. `asan_only-1.9.2`: Configured PMDK to be built with ASan (referred as `ASan` in the paper).
 3. `vanilla-1.9.2`: Unmodified PMDK (referred as `native` in the paper).
 
 ### Benchmarks
