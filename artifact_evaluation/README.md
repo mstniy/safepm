@@ -10,7 +10,7 @@ $ sudo chmod -R 777 /mnt/pmem0
  ```
 In case you do not have a machine with persistent memory, you can execute the experiments by [emulating](https://pmem.io/blog/2016/02/how-to-emulate-persistent-memory/) it with DRAM, e.g., with the `/dev/shm/` directory. Note that, this results in considerable differences in the final performance measurements.
 
-Further, you need to get the source code of SafePM. It can be found here(permanent url) or by simply cloning the current repository:
+Further, you need to get the source code of SafePM. It can be found by simply cloning the current repository:
 ```
 $ git clone git@github.com:mstniy/safepm.git
 ```
@@ -94,6 +94,7 @@ More specifically, to install `pmemkv` we use the following open-source librarie
 2. `libpmemobj-cpp` : https://github.com/pmem/libpmemobj-cpp.git tag: stable-1.12
 3. `pmemkv` : https://github.com/pmem/pmemkv.git tag: 1.4
 4. `pmemkv_bench` :  https://github.com/pmem/pmemkv-bench.git commit: 32d94c0
+
 The instructions to clone and install the above libraries can be found in the Dockerfiles.
 
 The configurations for `pmemkv_bench` are in the `$(SafePM_root)/benchmarks/pmemkv/run-all.sh` script. Further parameters for the `pmemkv` benchmarks, such as the thread count and benchmark type, can be found in each of the `$(SafePM_root)/benchmarks/pmemkv/run-pmemkv-bench-$(variant).sh` scripts
@@ -110,7 +111,7 @@ For our experiments on crash consistency we run `pmembench` with the `pmembench_
 To reproduce the bugs, we define in our PMDK fork's branch `pmasan-1.9.2` two distinct configuration files for `pmembench`, namely `pmembench_tx_bug.cfg` and `pmembench_map_bug.cfg`. These configuration files lead to the reported memory safety violations ([[1]](https://github.com/pmem/pmdk/issues/5333),[[2]](https://github.com/pmem/pmdk/issues/5334)) that we discovered using SafePM. Note that the configuration file `pmembench_map_bug.cfg` simply tries to benchmark the btree index, which triggers the off-by-one violation mentioned in section 6.7 in the paper. The second configuration file includes just the `obj_tx_realloc_sizes_abort` benchmark as defined in the upstream repository in the file `pmembench_tx.cfg`. In summary, both of these configuration files were taken from the upstream repository and modified to trigger the discovered bugs and anomalies as quickly as possible.
 
 ## Hardware configuration
-To reproduce the results from the paper, the machine should preferably be equipped with a physical persistent memory module (e.g., Intel Optane DC) with at least 64 GB available space. The persistent memory module should be mounted using a DAX-enabled file system (e.g. EXT4-DAX)
+To reproduce the results from the paper, the machine should preferably be equipped with a physical persistent memory module (e.g., Intel Optane DC) with at least 64 GB available space. The persistent memory module should be mounted using a DAX-enabled file system (e.g. EXT4-DAX).
 Additionally, we recommend running the [pmemkv](https://github.com/pmem/pmemkv) experiments on a machine with at least 24 cores, as they are configured to run with up to 24 threads. 
 The testbed, used to conduct our experiments, is equipped with:
 1. Intel(R) Xeon(R) Gold 6212U CPU @ 2.40GHz (24 cores)
