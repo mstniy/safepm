@@ -41,6 +41,7 @@ RUN make -j7
 WORKDIR /
 RUN git clone https://github.com/pmem/valgrind.git
 WORKDIR /valgrind
+RUN git checkout 06f15d69237501852dd29883940e18da4179830a
 RUN ./autogen.sh
 RUN ./configure
 RUN make -j7
