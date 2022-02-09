@@ -5,7 +5,7 @@ RESULTS="./results"
 declare -a log_size=("4" "128" "512" "2048" "4096")
 repeats=100
 
-printf "|                        RECOVERY TIME (ms)                          |\n"
+printf "|                        RECOVERY TIME (ms)                         |\n"
 printf "|-------------------------------------------------------------------|\n"
 printf "|%17s|%9s|%9s|%9s|%9s|%9s|\n" "Log Size" "4KB" "128KB" "512KB" "2MB" "4MB"
 printf "|-------------------------------------------------------------------|\n"
